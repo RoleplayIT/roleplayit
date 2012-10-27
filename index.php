@@ -4,6 +4,9 @@
 */
 
 include 'models/resources.php';
+include 'models/entities.php';
+
+use Entities\Map;
 
 session_start();
 
@@ -12,14 +15,6 @@ session_start();
 $TileData[] = new Tile('', '', false, true);
 $TileData[] = new Tile('floor.png', '', true, false);
 
-class Map {
-	public $mapName;
-	public $width;
-	public $height;
-	public $tileMap; 
-	//Object[] objects;  
-	//Character[] characters;
-}
 ///////////////////////////////////////////////
 // Initialize map
 $map = new Map();
@@ -87,8 +82,7 @@ function send_events($current_key)
 	{
 		$random_text = array("Random event: Hi","Random event: how's the weather ?","Random event: this thing is so lame!");
 		
-		$data = array( 'id'=> 0, 'text'=> $random_text[rand(0,2)]);
-		$event = array( 'cmd'=> 'say', $data);
+		$event = array( 'cmd'=> 'say', 'id'=> 0, 'text'=> $random_text[rand(0,2)]);
 		echo json_encode($event);
 	}
 	
