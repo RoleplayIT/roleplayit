@@ -1,0 +1,69 @@
+<html>
+<head>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js"></script>
+</head>
+
+
+<body>
+Received messages from server:
+<div id="content"></div>
+
+
+<script>
+var eventNow = 0;
+var lpOnComplete = function(response) {
+	
+    if (response!=null)
+	{
+		eventNow =  response[0];
+		document.getElementById('content').innerHTML += response+"<br>";
+	}
+    // do more processing
+    lpStart();
+};
+
+
+
+var lpStart = function() {
+	$.ajax({
+		type: 'GET',
+		url: 'pool.php',
+		data: { id: eventNow },
+		dataType: 'json',
+		success: lpOnComplete,
+		error: function () {/*alert("ERROR"); */lpStart(); }
+	});
+    //$.post('pool.php', {}, lpOnComplete, 'json');
+};
+
+$(document).ready(lpStart);
+
+
+function AJAXsend(txt) {
+	document.getElementById('msg').value='';
+	$.ajax({
+		type: 'POST',
+		url: 'pool.php',
+		data: { 
+			action: 'send',
+			msg: txt
+			
+			}
+			
+		,
+		dataType: 'json'
+	});
+	
+}
+
+</script>
+
+<form onsubmit="AJAXsend(msg.value);return false;">
+<input name="msg" id="msg" type="text" />
+</form>
+
+</body>
+
+</html>
+
+

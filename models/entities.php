@@ -30,12 +30,37 @@ class Map
 	public $tileMap = array(); 
 	public $objects = array();  
 	public $characters = array();
+	
+	private function initialize() 
+	{
+		for ($i=0;$i<$this->width;++$i)
+{
+			for ($j=0;$j<$this->height;++$j)
+			{
+				$this->tileMap[$i][$j] = 0;
+			}
+		}
+	}
+	
+	public function __construct($width, $height, $tileMap=null)
+	{
+		if ($width <= 0 || $height <= 0) exit ('Map created with invalid width/height');
+		$this->width = $width; 
+		$this->height = $width;
+		
+		$this->initialize();
+		
+		if ( !is_null($tileMap) )
+			$this->tileMap = $tileMap;
+		
+	}
+	
 }
 
 class Object extends Entity 
 {
-	public $sprite;
-	public $sprite2d;
+	public $sprite;    // isometric
+	public $sprite2d;  // topdown
 	
 	# Entity
 	public function Delete() {}

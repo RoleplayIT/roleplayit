@@ -17,10 +17,9 @@ $TileData[] = new Tile('floor.png', '', true, false);
 
 ///////////////////////////////////////////////
 // Initialize map
-$map = new Map();
+$map = new Map(15,15);
 $map->mapName = 'Test';
-$map->width = 15;
-$map->height = 15;
+//randomize map 
 for ($i=0;$i<$map->width;++$i)
 {
 	for ($j=0;$j<$map->height;++$j)
