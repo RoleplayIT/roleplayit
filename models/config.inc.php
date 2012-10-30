@@ -8,7 +8,7 @@ define('PATH_TILES', 'gfx/tiles/');
 define('DB_HOST', 'localhost');
 define('DB_USER', 'root');
 define('DB_PASS', '');
-define('DB_TABLE', 'test');
+define('DB_TABLE', 'roleplayit');
 
 // LONG POLLING AJAX
 define('POLLING_INTERVAL', 500000); // 0.5 seconds

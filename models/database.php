@@ -3,7 +3,7 @@ require_once 'config.inc.php';
 
 class Database
 {
-	private $connection;
+	private  $connection;
 	
 	public function connect()
 	{
@@ -19,7 +19,7 @@ class Database
 	
 	public function num_rows() { return mysql_num_rows($query); }
 	
-	public function query($query) { return mysql_query($query, $this->connection); }
+	public function query($query) { return mysql_query($query); }
 	
 	public function fetch($result) { return mysql_fetch_array($result); }
 	

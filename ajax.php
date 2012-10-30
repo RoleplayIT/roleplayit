@@ -2,9 +2,15 @@
 include 'models/config.inc.php';
 include 'models/logging.php';
 include 'models/database.php';
+include 'models/session.php';
+include 'models/user.php';
 
-error_reporting(1); // 
+if (!User::isLogged()) {
+	header('Location: index.php');
+	exit;
+}
 
+//error_reporting(1); // 
 
 
 /**
@@ -13,26 +19,26 @@ error_reporting(1); //
 function getEvents()
 {
 	global $db;
-	session_start();
-	if (!isset($_SESSION['event_key']))
+	
+	if (Session::get('event_key')===false)
 	{
 		//sync();
 		//$_SESSION['event_key'] = getLatestKey();
-		$_SESSION['event_key'] = 0;
-		session_write_close();
+		Session::set('event_key', 0); // test
+		
 		Logging::lwrite('getEvents(): ' . $_SERVER['REMOTE_ADDR'] . ' new session ');
 	}
 	else 
 	{
 		$client_key = $_SESSION['event_key'];
 		
-		// Get all the stuf after the last update
+		// Get all the stuff after the last update
 		$out = false;
-		$query = $db->query("SELECT * FROM test WHERE id >= $client_key"); 
+		$query = $db->query("SELECT * FROM events WHERE id >= $client_key"); 
 		while ($row = $db->fetch($query))
 		{
 			$key = $row['id'];
-			$text = $row['text'];
+			$data = $row['data'];
 			
 			
 			if (!isset($check_first))
@@ -46,12 +52,10 @@ function getEvents()
 				}
 				$check_first = true;
 			}
-			else $out[] = array($key,htmlentities($text));
+			else $out[] = array($key,htmlentities($data));
 		}
-		session_start();
-		$_SESSION['event_key'] = $key;
-		session_write_close();
-		
+		if (isset($key)) Session::set('event_key', $key);
+				
 		return $out;
 	}
 }
@@ -79,11 +83,15 @@ function send_updates()
 }
 
 
-if (@$_REQUEST['action']=='send')
+if (isset($_REQUEST['cmd']))
 {	
-	$message = $_REQUEST['msg'];
-	$db->query("INSERT INTO test (text) VALUES ('".$db->escape($message)."')");
-	exit;
+	// process_event();
+	$cmd = $_REQUEST['cmd'];
+	if ( $cmd == 'say' ) {
+		$message = $_REQUEST['data'];
+		$db->query("INSERT INTO events (timestamp, cmd, data) VALUES (".time().", 'say', '".$db->escape($message)."')");
+		exit;
+	}
 }
 
 send_updates();
