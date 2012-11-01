@@ -22,9 +22,10 @@ class Session
 	public static function destroy()
 	{
 		session_start();
-		session_unset();
+		$_SESSION = array(); // destroy all $_SESSION data
+		setcookie("PHPSESSID", "", time() - 3600, "/");
 		session_destroy();
-		session_write_close();
+		//session_write_close();
 	}
 	
 	public static function exist($name)

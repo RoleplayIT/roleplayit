@@ -18,15 +18,18 @@ class User
 		$db_user = $db->escape($user);
 		$db_pwd = md5($pwd);
 		
-		$query = $db->query("SELECT id FROM users WHERE username='$db_user' AND password='$db_pwd'");
+		$query = $db->query("SELECT * FROM users WHERE username='$db_user' AND password='$db_pwd'");
 		if ($row = $db->fetch($query))
-		{
+		{	
+
 			$id = $row['id'];
 			$username = $row['username'];
 			$access_level = $row['access_level'];
-			Session::set('user_id', $id);			
-			Session::set('username', $username);			
-			Session::set('access_level', $access_level);			
+						
+			Session::set('user_id', $id);
+			Session::set('username', $username);
+			Session::set('access_level', $access_level);
+
 			return $id;
 		}
 		

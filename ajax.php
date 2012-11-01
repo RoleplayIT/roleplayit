@@ -4,6 +4,7 @@ include 'models/logging.php';
 include 'models/database.php';
 include 'models/session.php';
 include 'models/user.php';
+include 'models/engine.php';
 
 if (!User::isLogged()) {
 	header('Location: index.php');
@@ -12,6 +13,47 @@ if (!User::isLogged()) {
 
 //error_reporting(1); // 
 
+function getLatestKey() 
+{
+	global $db;
+	$query = $db->query("SELECT id FROM events ORDER BY id DESC LIMIT 1");
+	if ($row = $db->fetch($query))
+	{
+		return $row['id'];
+	}	
+	return false;
+}
+
+function client_sync() // todo
+{
+	global $db;
+	
+	$query = $db->query("SELECT * FROM events"); 
+	if ( $db->num_rows($query) == 0 ) return;
+	
+	// chatlog
+	$query = $db->query("SELECT * FROM events WHERE cmd='say'");
+	while ($row = $db->fetch($query))
+	{
+		$chatlog[] = array($row['id'],'say', htmlentities($row['data'], ENT_QUOTES, "UTF-8"));
+	}
+	$db->free($row);
+	// map
+	// objects
+	// characters
+	
+	
+	//Session::set('event_key', getLatestKey());
+	
+	//Logging::lwrite('client_sync(): ' . $_SERVER['REMOTE_ADDR'] . ", sending " . json_encode($chatlog) );
+	
+	echo json_encode($chatlog);
+	exit;
+	// send everything to client
+	// exit;
+	
+	
+}
 
 /**
  * Fetch the latest events 
@@ -20,21 +62,17 @@ function getEvents()
 {
 	global $db;
 	
-	if (Session::get('event_key')===false)
+	$client_key = isset($_GET['key'])?intval($_GET['key']):0;
+	if ($client_key==0 )
 	{
-		//sync();
-		//$_SESSION['event_key'] = getLatestKey();
-		Session::set('event_key', 0); // test
-		
-		Logging::lwrite('getEvents(): ' . $_SERVER['REMOTE_ADDR'] . ' new session ');
+		client_sync();
 	}
 	else 
 	{
-		$client_key = $_SESSION['event_key'];
-		
 		// Get all the stuff after the last update
 		$out = false;
 		$query = $db->query("SELECT * FROM events WHERE id >= $client_key"); 
+		if (mysql_num_rows($query)==0) return;
 		while ($row = $db->fetch($query))
 		{
 			$key = $row['id'];
@@ -47,15 +85,15 @@ function getEvents()
 				// the event list might have been cleared or the connection lost for too long
 				if ($key!=$client_key)
 				{
-					//sync()
-					Logging::lwrite('getEvents(): ' . $_SERVER['REMOTE_ADDR'] . ' key not found -> resync (todo)');
+					//Logging::lwrite('getEvents(): ' . $_SERVER['REMOTE_ADDR'] . " key $client_key not found -> resync (todo)");
+					client_sync();
+
 				}
 				$check_first = true;
 			}
-			else $out[] = array($key,htmlentities($data));
+			else $out[] = array($key,'say',htmlentities($data,ENT_QUOTES, "UTF-8"));
 		}
-		if (isset($key)) Session::set('event_key', $key);
-				
+		$db->free($row);
 		return $out;
 	}
 }
@@ -79,7 +117,9 @@ function send_updates()
 		
 		// wait for POLLING_INTERVAL microseconds
 		usleep(POLLING_INTERVAL);
+	
 	}
+	
 }
 
 
@@ -89,9 +129,9 @@ if (isset($_REQUEST['cmd']))
 	$cmd = $_REQUEST['cmd'];
 	if ( $cmd == 'say' ) {
 		$message = $_REQUEST['data'];
-		$db->query("INSERT INTO events (timestamp, cmd, data) VALUES (".time().", 'say', '".$db->escape($message)."')");
+		$db->query("INSERT INTO events (timestamp, cmd, data) VALUES (".time().", 'say', '<".Session::get('username')."> ".$db->escape($message)."')");
 		exit;
 	}
 }
-
+else
 send_updates();

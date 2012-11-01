@@ -15,15 +15,21 @@ class Database
 		if (!$db_table) {
 			die ('Can\'t use ' . DB_TABLE . ' : ' . mysql_error());
 		}
+		mysql_set_charset('utf8', $this->connection);
 	}
 	
-	public function num_rows() { return mysql_num_rows($query); }
+	public function num_rows($query) { return mysql_num_rows($query); }
 	
 	public function query($query) { return mysql_query($query); }
 	
 	public function fetch($result) { return mysql_fetch_array($result); }
 	
 	public function escape($string) { return mysql_real_escape_string($string); }
+	
+	public function free($result) 
+	{ 
+		if ($result) mysql_free_result($result); 
+	}
 	
 }
 

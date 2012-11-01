@@ -16,6 +16,8 @@ class Network {
 		// In our case we store on the database
 		// id, timestamp, client, cmd, data
 		//Storage::appendEvent($data, $client);
+		//$message = $_REQUEST['data'];
+		//$db->query("INSERT INTO events (timestamp, cmd, data) VALUES (".time().", 'say', '<".Session::get('username')."> ".$db->escape($message)."')");
 	}
 	
 	public static function Receive($data) 
