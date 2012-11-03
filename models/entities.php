@@ -29,7 +29,7 @@ class Map
 	public $height;
 	public $tileMap = array(); 
 	public $objects = array();  
-	public $characters = array();
+	public $actors = array();
 	
 	private function initialize() 
 	{
@@ -66,7 +66,7 @@ class Object extends Entity
 	public function Delete() {}
 }
 
-class Character extends Entity
+class Actor extends Entity
 {
     public $name;
     public $color;
