@@ -8,6 +8,7 @@
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js"></script>
 <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.1/jquery-ui.min.js"></script>
 <script src="js/dom-drag.js"></script>
+<script src="js/GameEvents.js"></script>
 
 <style>
 body {background:#fff;}
@@ -219,6 +220,7 @@ function say(id, text)
 {	
 	if (id < 1) return;
 	var speechBubble = $( "#actor" + id + " .chat" );
+	/*
 	if ( speechBubble.is(":visible") ) {
 		speechBubble.html( speechBubble.html() + "<br>" + text );
 	}
@@ -226,6 +228,9 @@ function say(id, text)
 	{
 		speechBubble.html( text );
 	}
+	*/
+	speechBubble.html( text );
+	
 	speechBubble.show("fade") 
 	clearTimeout( speechBubble.data("tout") );
 	speechBubble.data( "tout", 0 );

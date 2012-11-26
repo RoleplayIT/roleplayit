@@ -150,6 +150,7 @@ if (isset($_REQUEST['cmd']))
 	}
 	*/
 	Engine\EventHandler::execute();
+
 	exit;
 }
 else
