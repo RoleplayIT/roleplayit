@@ -5,12 +5,14 @@ function mapCoords(xIn,yIn){
     }
 }
 
+	
 $(document).ready(function() {
 	Crafty.init();
 	Crafty.viewport.init(780, 540);
 	Crafty.viewport.scale(1);
-
 	//Crafty.canvas.init();
+	
+	
 	Crafty.sprite(48, "images/sprite.png", {
 		grass: [0,0,1,2],
 		stone: [1,0,1,2],
@@ -43,8 +45,11 @@ $(document).ready(function() {
 				//alert(e.button);
 				//destroy on right click
 				//if(e.mouseButton == Crafty.mouseButtons.RIGHT) this.destroy();
-			}).bind("MouseOver", function() {
+			}).bind("MouseOver", function(e) {
 				this.alpha = 0.5;
+				var base = {x: e.clientX - Crafty.viewport._x, y: e.clientY - Crafty.viewport._y};
+				//console.log(iso.px2pos(base.x, base.y)  );
+				console.log( iso.px2pos(this.x, this.y) );
 				
 			}).bind("MouseOut", function() {
 				this.alpha = 1;
@@ -52,8 +57,8 @@ $(document).ready(function() {
 			
 			
 			
-			iso.place(coords.x,coords.y,0, tile);
-			//iso.place(i,y,0, tile);
+			//iso.place(coords.x,coords.y,0, tile);
+			iso.place(i,y,0, tile);
 		}
 	}
 	
@@ -61,11 +66,12 @@ $(document).ready(function() {
 	var coords = mapCoords(15,15);
 	var tile = Crafty.e("2D, DOM, mage_0, Mouse, Draggable").origin(10,20);
 		
-	iso.place(coords.x,coords.y,0, tile);
+	//iso.place(coords.x,coords.y,0, tile);
+	iso.place(15,15,0, tile);
 	// ---
 	
 	Crafty.addEvent(this, Crafty.stage.elem, "mousedown", function(e) {
-		if(e.button !== 1) return;
+		if(e.button !== 2) return;
 		var base = {x: e.clientX, y: e.clientY};
 
 		function scroll(e) {
@@ -81,5 +87,6 @@ $(document).ready(function() {
 			Crafty.removeEvent(this, Crafty.stage.elem, "mousemove", scroll);
 		});
 	});
+	
 	
 });
