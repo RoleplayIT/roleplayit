@@ -36,7 +36,7 @@ Crafty.extend({
         size: function (width, height, layers) {
             this._tile.width = width;
             this._tile.height = height > 0 ? height : width/2; //Setup width/2 if height isn't set
-			this._tile.layers = layers > 0 ? layers : 1;
+			this._layers = layers > 0 ? layers : 1;
             return this;
         },
         /**@
@@ -60,11 +60,16 @@ Crafty.extend({
         */
         place: function (x, y, z, obj) {
             var pos = this.pos2px(x,y);
-            pos.top -= z * ( this._tile.width / 2);
+			
+            pos.top -=  (obj.h - this._tile.height) - z * this._tile.height;
+			pos.left +=  this._tile.width/2 - obj.w/2;
             obj.attr({
-                x: pos.left + Crafty.viewport._x, 
-                y: pos.top + Crafty.viewport._y
-            }).z += z;
+                x: pos.left,// - Crafty.viewport._x,
+                y: pos.top, //- Crafty.viewport._y,
+				z: this._layers * (x + y) + z
+            });
+            //console.log(obj);
+            //}).z += z;
             return this;
         },
         /**@
@@ -109,11 +114,13 @@ Crafty.extend({
          * ~~~
          */
         px2pos:function(left,top){
+            left -= this._tile.width/2;
+            top -= this._tile.height/2;
             return {
                 //x:Math.ceil(-left / this._tile.width - (top & 1)*0.5),
-                //y:-top / this._tile.height * 2
-                x:(-left / this._tile.width ) + top / this._tile.height,
-				y:(left / this._tile.width ) + top / this._tile.height
+                //y:-top / this._tile.height * 2               
+                x: Math.round(-left / this._tile.width ) + Math.ceil( top / this._tile.height ),
+				y: Math.round( left / this._tile.width ) + Math.ceil( top / this._tile.height )
             }; 
         },
         /**@
@@ -179,6 +186,20 @@ Crafty.extend({
                     end : end.y
                 }
             };
-        } 
+        },
+
+        /**@
+         * #Crafty.isometric.polygon
+         * @comp Crafty.isometric
+         * @sign public this Crafty.isometric.polygon()
+         * Method to get the Polygon for a Tile
+         * ~~~
+         * var iso = Crafty.isometric.size(128,96).centerAt(10,10); //Viewport is now moved
+         * var gras = Crafty.e("2D","DOM","gras","Solid","Collision").collision(new Crafty.polygon(iso.polygon())); //The Tile has the right collision points now
+         * ~~~
+         */
+        polygon:function(offset){
+            return [[this._tile.width/2,offset],[this._tile.width,this._tile.height/2+offset],[this._tile.width/2,this._tile.height+offset],[0,this._tile.height/2+offset]];
+        }
     }
 });
