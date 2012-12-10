@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generato il: 06 nov, 2012 at 11:35 
+-- Generato il: 10 dic, 2012 at 08:02 
 -- Versione MySQL: 5.5.8
 -- Versione PHP: 5.3.5
 
@@ -35,6 +35,7 @@ CREATE TABLE IF NOT EXISTS `actors` (
   `owner` int(10) unsigned NOT NULL,
   `x` int(11) NOT NULL DEFAULT '0',
   `y` int(11) NOT NULL DEFAULT '0',
+  `angle` int(11) NOT NULL DEFAULT '0',
   `map` int(11) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=3 ;
@@ -43,9 +44,9 @@ CREATE TABLE IF NOT EXISTS `actors` (
 -- Dump dei dati per la tabella `actors`
 --
 
-INSERT INTO `actors` (`id`, `name`, `stats`, `data`, `owner`, `x`, `y`, `map`) VALUES
-(1, 'Bobby', '', '', 2, 11, 0, 1),
-(2, 'Tables', '', '', 3, 7, 13, 1);
+INSERT INTO `actors` (`id`, `name`, `stats`, `data`, `owner`, `x`, `y`, `angle`, `map`) VALUES
+(1, 'Bobby', '', '', 2, 7, 4, 2, 1),
+(2, 'Tables', '', '', 3, 5, 9, 0, 1);
 
 -- --------------------------------------------------------
 
@@ -61,15 +62,15 @@ CREATE TABLE IF NOT EXISTS `events` (
   `persistent` tinyint(1) NOT NULL DEFAULT '0',
   `target` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=851 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=3314 ;
 
 --
 -- Dump dei dati per la tabella `events`
 --
 
 INSERT INTO `events` (`id`, `timestamp`, `cmd`, `data`, `persistent`, `target`) VALUES
-(849, 1352241271, 'move', '[2,8,13]', 0, NULL),
-(850, 1352241274, 'move', '[2,7,13]', 0, NULL);
+(3312, 1355122839, 'move', '[1,6,4,2]', 0, NULL),
+(3313, 1355122839, 'move', '[1,7,4,2]', 0, NULL);
 
 -- --------------------------------------------------------
 

@@ -102,6 +102,11 @@ function getEvents()
 			else $out[] = array($key,$cmd,$data);
 		}
 		$db->free($row);
+		
+		// cleanup expired packets
+		$expired = time() - 60;
+		$db->query("DELETE FROM events WHERE timestamp < $expired AND id < " . ($key-1) );  // but we keep the last so I can avoid fixing a bug
+		
 		return $out;
 	}
 }
@@ -133,24 +138,7 @@ function send_updates()
 // TODO refactor
 if (isset($_REQUEST['cmd']))
 {	
-	// process_event();
-	/*
-	$cmd = $_REQUEST['cmd'];
-	if ( $cmd == 'say' ) {
-		$message = $_REQUEST['data'];
-		$db->query("INSERT INTO events (timestamp, cmd, data) VALUES (".time().", 'say', '".$db->escape($message)."')");
-		exit;
-	}
-	elseif ( $cmd == 'move' ) {
-		$idx = intval($_REQUEST['idx']);
-		$x = intval($_REQUEST['x']);
-		$y = intval($_REQUEST['y']);
-		$data = json_encode(array($idx, $x, $y));
-		$db->query("INSERT INTO events (timestamp, cmd, data) VALUES (".time().", 'move', '".$data."')");
-	}
-	*/
 	Engine\EventHandler::execute();
-
 	exit;
 }
 else
