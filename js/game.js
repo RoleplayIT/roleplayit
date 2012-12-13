@@ -42,6 +42,14 @@ $(document).ready(function() {
 		iso_cursor: [0,0]
 	});
 	
+	// Tile flags
+	var TileFlags = [3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+	var TileFlag = {
+		Impassable: 0x01,
+		BlockLOS: 0x02
+	}
+	
+	
 	// Initialize viewport ////////////////////////////////////////////////////
 	Crafty.init();
 	Crafty.background("#111")
@@ -152,20 +160,32 @@ $(document).ready(function() {
 				actor.angle = this._direction;
 				
 				// TODO check movement
-				
+				var newPos = { x: actor.x, y: actor.y };
 				// forward
 				if(this.isDown(Crafty.keys.UP_ARROW)) {
 					//iso.place(this, pos.x + this._moveMatrix[this._direction][0], pos.y + this._moveMatrix[this._direction][1], 2);
-					actor.x += this._moveMatrix[this._direction][0];
-					actor.y += this._moveMatrix[this._direction][1];
+					newPos = {
+						x: actor.x + this._moveMatrix[this._direction][0],
+						y: actor.y + this._moveMatrix[this._direction][1]
+					}
 				
 				}
 				
 				// backward
 				if(this.isDown(Crafty.keys.DOWN_ARROW)) {
 					//iso.place(this, pos.x - this._moveMatrix[this._direction][0], pos.y - this._moveMatrix[this._direction][1], 2);
-					actor.x -= this._moveMatrix[this._direction][0];
-					actor.y -= this._moveMatrix[this._direction][1];
+					newPos = {
+						x: actor.x - this._moveMatrix[this._direction][0],
+						y: actor.y - this._moveMatrix[this._direction][1]
+					}
+				}
+				
+				// check if valid movement
+				if ( !checkMovement(newPos.x, newPos.y) ) return; // TODO check passage flag
+				else
+				{
+					actor.x = newPos.x;
+					actor.y = newPos.y;
 				}
 				
 				iso.place(this, actor.x , actor.y, 2);
@@ -177,11 +197,21 @@ $(document).ready(function() {
 				Crafty.viewport.scroll("_x", Crafty.viewport._zoom*(-this.x - this.w/2) + Crafty.viewport.width / 2 );
 				Crafty.viewport.scroll("_y", Crafty.viewport._zoom*(-this.y - this.h/2) + Crafty.viewport.height / 2 );
 				
-				
 			});
 		}
 	});
 	
+	function checkMovement(x,y)
+	{
+		if ( x > Game.map.width-1 || x < 0 ) return false; // x out of bounds
+		if ( y > Game.map.height-1 || y < 0 ) return false; // y out of bounds
+		
+		//if ( Game.map.tilemap[x][y] === 0 ) return false;	// TODO replace with check with passable flag
+		if ( TileFlags[Game.map.tilemap[x][y]] & TileFlag.Impassable ) return false;
+		//if ( Game.map.tilemap[x][y] === 0 ) return false;	// TODO replace with check with passable flag
+		
+		return true;
+	}
 	
     // Iso cursor ////////////////////////////////////////////////////////////
 	{
@@ -231,6 +261,14 @@ $(document).ready(function() {
 			var gc = Game.viewport.px2pos(  Crafty.mousePos.x,  Crafty.mousePos.y );
 			var actor = Game.actors[this._id];
 			if (gc.x == actor.x && gc.y == actor.y) return; // no change, abort
+			// check if valid movement
+			// should we ignore the check for the DM ?
+			if ( !checkMovement(gc.x, gc.y) ) 
+			{
+				gc.x = actor.x;
+				gc.y = actor.y;
+			}
+
 			Sender.move(this._id, gc.x, gc.y, this._direction);
 		});
 	entity._id = 1;
