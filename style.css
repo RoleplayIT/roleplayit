@@ -28,7 +28,7 @@ body{ background: #000; color: #ddd; font-family: Tahoma, Arial, sans-serif;}
 
 
 
-#pane_viewport { position:relative; } 
+#pane_viewport { position:relative; border: 5px solid #667; }
 .DOM { image-rendering:optimizeSpeed; image-rendering:-moz-crisp-edges; image-rendering:-o-crisp-edges; image-rendering:-webkit-optimize-contrast; image-rendering:optimize-contrast;-ms-interpolation-mode:nearest-neighbor; }
 
 #roll_request { border: 1px solid #00AFAF;border-radius: 10px 10px 10px 10px;bottom: 5px;box-shadow: 0 0 10px #00B5C8;overflow: hidden;position: absolute;right: 5px; z-index: 9000; }

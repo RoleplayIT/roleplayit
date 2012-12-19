@@ -4,8 +4,77 @@ var Game = {
 	viewport: null,
 	map:      null,
 	actors:	  [],
-	objects:  []
+	objects:  [],
+	sightRadius: 8
+}
+var TileFlags;
+var TileFlag;
+
+// Draw map ///////////////////////////////////////////////////////////////
+function drawMap(useFov) {
+	var map = Game.map;
+	for(var i = 0; i < map.width; i++) {
+		for(var j = 0; j < map.height; j++) {
+			
+			var tile = Game.map.tilemap[i][j];
+			if (tile==0) continue; // 0 is empty, always skip it
+			
+			var visible = true;
+			if (true) {
+				try {
+					
+					visible = map.fov[i][j];
+				} catch (e) { visible = false;}
+				
+			}
+			// did we already create that tile ?
+			if (Game.map.tilemap_e[i][j] != null) {
+				//Game.map.tilemap_e[i][j].visible = visible; // update visibility
+				if (visible) Game.map.tilemap_e[i][j].alpha = 1.0;
+				else Game.map.tilemap_e[i][j].alpha = 0.3;
+			}
+			else // no, place a new one
+			{
+				if (!visible) continue;
+				
+				var entity = Crafty.e("2D, DOM, tile" + tile);
+				Game.map.tilemap_e[i][j] = entity; // store reference to crafty entity
+				
+				//console.log(tile.ref);
+				Game.viewport.place(entity, i, j, 0);
+			}
+		}
+	}
+}
 	
+// Update Field of View ///////////////////////////////////////////////////
+function updateFoV() {
+	// TODO use associated actor
+	var coords = {x: Game.actors[1].x, y: Game.actors[1].y};
+	var sight = Shadowcast.calcFoV(Game.map, coords.x, coords.y, Game.sightRadius);
+	//var sight = Shadowcast.calcFoV(Game.map, 13, 8, 12);
+	
+	
+	// hide all
+	for(var i = 0; i < Game.map.width; i++) {
+		for(var j = 0; j < Game.map.height; j++) {
+			Game.map.fov[i][j] = false;
+		}
+	}
+	
+	// show visible
+	for(var i = 0; i < sight.length; i++) {
+
+		Game.map.fov[sight[i].x][sight[i].y] = true;
+		// let's check if there's a crafty tile already associated
+		/*
+		if (Game.map.tilemap[i][j].hasOwnProperty('ref')) {
+			var entity = Game.map.tilemap[i][j].ref;
+			if entity
+		}
+		*/
+	}
+	drawMap(true);
 }
 
 $(document).ready(function() {
@@ -43,8 +112,8 @@ $(document).ready(function() {
 	});
 	
 	// Tile flags
-	var TileFlags = [3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-	var TileFlag = {
+	TileFlags = [3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3];
+	TileFlag = {
 		Impassable: 0x01,
 		BlockLOS: 0x02
 	}
@@ -60,16 +129,7 @@ $(document).ready(function() {
 	Game.viewport = iso;
 	
 	
-	// Draw map ///////////////////////////////////////////////////////////////
-	function drawMap() {
-		for(var i = 0; i < Game.map.width; i++) {
-			for(var j = 0; j < Game.map.height; j++) {
-				var tile = Game.map.tilemap[i][j];
-				if (tile==0) continue; // 0 is emptyness
-				iso.place(Crafty.e("2D, DOM, tile" + tile), i, j, 0);
-			}
-		}
-	}
+	
 	// Load map from server
 	function ajax_getMap() {
 		$.ajax({
@@ -84,14 +144,42 @@ $(document).ready(function() {
 				var map_width = data[2];
 				var map_height = data[3];
 				var tilemap = data[4];
-				Game.map = { id: map_id, name: map_name, width: map_width, height: map_height, tilemap: tilemap };
-				drawMap();
+				
+				// Create map object
+				var map = new Map(map_width, map_height);
+				map.id = map_id;
+				map.name = map_name;
+				map.width = map_width;
+				map.height = map_height;
+				map.tilemap = tilemap;
+				
+				Game.map = map;
+				
+				updateFoV();
+				
+				drawMap(true);
 			}
 		});
 		
 	}
 	
-	ajax_getMap();
+//	ajax_getMap();
+	/*
+	// Update Field of View ///////////////////////////////////////////////////
+	function updateFoV() {
+		// TODO use associated actor
+		var coords = {x: Game.actors[1].x, y: Game.actors[1].y};
+		var sight = Shadowcast.calcFoV(Game.map, coords.x, coords.y, Game.sightRadius);
+		//var sight = Shadowcast.calcFoV(Game.map, 13, 7, 12);
+		//console.log(sight);
+		for(var i = 0; i < sight.length; i++) {
+			Game.map.fov[sight[i].x][sight[i].y] = true;
+			// let's check if there's a crafty tile already associated
+
+		}
+		drawMap(true);
+	}
+	*/
     
 	// Classes ////////////////////////////////////////////////////////////////
 	function Actor(x, y, angle, ref)
@@ -207,7 +295,8 @@ $(document).ready(function() {
 		if ( y > Game.map.height-1 || y < 0 ) return false; // y out of bounds
 		
 		//if ( Game.map.tilemap[x][y] === 0 ) return false;	// TODO replace with check with passable flag
-		if ( TileFlags[Game.map.tilemap[x][y]] & TileFlag.Impassable ) return false;
+		//if ( TileFlags[Game.map.tilemap[x][y]] & TileFlag.Impassable ) return false;
+		if ( Game.map.canWalk({x:x, y:y}) ) return false;
 		//if ( Game.map.tilemap[x][y] === 0 ) return false;	// TODO replace with check with passable flag
 		
 		return true;
@@ -303,7 +392,7 @@ $(document).ready(function() {
     // ---
     
     // Trees //////////////////////////////////////////////////////////////////
-    iso.place(Crafty.e("2D, DOM, tree"), 5, 0, 1);
+    iso.place(Crafty.e("2D, DOM, tree"), 13, 5, 1);
     iso.place(Crafty.e("2D, DOM, tree"), 5, 9, 1);
 	// ---
 	
@@ -325,6 +414,8 @@ $(document).ready(function() {
 			Crafty.removeEvent(this, Crafty.stage.elem, "mousemove", scroll);
 		});
 	});
+	
+	ajax_getMap();
 	
     $(".DOM").css({
         '-moz-user-select':'none',

@@ -34,6 +34,8 @@
 
 <!-- Game classes -->
 <script src="js/GameEvents.js"></script>
+<script src="js/Map.js"></script>
+<script src="js/Shadowcast.js"></script>
 <script src="js/Sender.js"></script>
 <script src="js/GUI.js"></script>
 

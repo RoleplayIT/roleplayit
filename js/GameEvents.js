@@ -19,19 +19,37 @@ var GameEvents = {
 			var entity = Game.actors[id].ref;
 			entity._direction = angle;
 			
+			// TODO implement direction properly
 			switch (angle) {
-				case 0: entity.addComponent("mage_1").unflip("X");
+				case 0: entity.sprite(1,0,1,2).unflip("X");
 					break;
-				case 2: entity.addComponent("mage_0").unflip("X"); 
+				case 2: entity.sprite(0,0,1,2).unflip("X"); 
 					break;
-				case 4: entity.addComponent("mage_0").flip("X");
+				case 4: entity.sprite(0,0,1,2).flip("X");
 					break;
-				case 6: entity.addComponent("mage_1").flip("X");
+				case 6: entity.sprite(1,0,1,2).flip("X");
 					break;
 			}
 			Game.viewport.place(entity, x, y, 2);
 			
-			// TODO implement direction
+			updateFoV();
+			// Game.calculateFOV();
+			/*/
+			var map = Game.map;
+			map.fov = Shadowcast.calcFoV(map, x, y, Game.sightRadius);
+			
+			for (var i=0; i< map.fov.length; i++) {
+				//console.log( [sight[i].x, sight[i].y ]);
+				var x = map.fov[i].x;
+				var y = map.fov[i].y;
+				if (x<0 || y<0 || x >= map.width || y >= map.height ) continue;
+				
+				if (map.tilemap[x][y] === 0) map[x][y].visible = true; // gray ground
+				// map[x][y] = 2;
+				
+			}
+			//*/
+			
 		}
 		catch (e){}
 	},

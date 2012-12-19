@@ -47,5 +47,7 @@ elseif ($_SERVER['REQUEST_METHOD']=='POST')
 		<input type="submit" value="login" />
 	</form>
 	<div id="notice"><?php if (isset($msg)) echo $msg; ?></div>
+	<br />
+	User/Pass: p1
 </body>
 </html>
