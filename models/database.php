@@ -26,6 +26,8 @@ class Database
 	
 	public function escape($string) { return mysql_real_escape_string($string); }
 	
+	public function insert_id() { return mysql_insert_id($this->connection); }
+	
 	public function free($result) 
 	{ 
 		if ($result) mysql_free_result($result); 

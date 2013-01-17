@@ -5,7 +5,9 @@ var Game = {
 	map:      null,
 	actors:	  [],
 	objects:  [],
-	sightRadius: 8
+	sightRadius: 8,
+	userID: 0,
+	currentActor: 0
 }
 var TileFlags;
 var TileFlag;
@@ -50,7 +52,7 @@ function drawMap(useFov) {
 // Update Field of View ///////////////////////////////////////////////////
 function updateFoV() {
 	// TODO use associated actor
-	var coords = {x: Game.actors[1].x, y: Game.actors[1].y};
+	var coords = {x: Game.actors[Game.currentActor].x, y: Game.actors[Game.currentActor].y};
 	var sight = Shadowcast.calcFoV(Game.map, coords.x, coords.y, Game.sightRadius);
 	//var sight = Shadowcast.calcFoV(Game.map, 13, 8, 12);
 	
@@ -339,7 +341,7 @@ $(document).ready(function() {
 	Game.actors[1] = new Actor(6, 2, 2);
 	var myActor = Game.actors[1];
 	myActor.name = "Robert";
-	var entity = Crafty.e("2D, DOM, Actor, mage, Mouse, Draggable, Isoway")
+	var entity = Crafty.e("2D, DOM, Actor, mage, Mouse, Draggable")
 		.bind("Dragging", function(e) {
             if (_mouseMode!='actor') return true;
 			var gc = Game.viewport.px2pos(  Crafty.mousePos.x,  Crafty.mousePos.y );
@@ -361,6 +363,7 @@ $(document).ready(function() {
 			Sender.move(this._id, gc.x, gc.y, this._direction);
 		});
 	entity._id = 1;
+	if (entity._id == Game.currentActor) entity.addComponent("Isoway");
 	myActor.ref = entity;
 	Game.viewport.place(entity, myActor.x, myActor.y, 2);
 	}
@@ -386,6 +389,7 @@ $(document).ready(function() {
 			Sender.move(this._id, gc.x, gc.y, this._direction);
 		});
 	entity._id = 2;
+	if (entity._id == Game.currentActor) entity.addComponent("Isoway");
 	myActor.ref = entity;
 	Game.viewport.place(entity, myActor.x, myActor.y, 2);
 	}

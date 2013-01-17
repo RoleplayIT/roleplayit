@@ -1,5 +1,10 @@
 <?php 
-	//////////////////////////
+require_once('models/engine.php');
+
+$userID = Session::get('user_id');
+$currentActor = Engine\getActorByOwner($userID);
+
+
 ?>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -118,6 +123,9 @@
 
 
 <script>
+
+Game.userID = <?=$userID?>;
+Game.currentActor = <?=$currentActor?>;
 
 function limit(min,max, value) {
 	return (value < min) ? min : (value > max ? max : value);

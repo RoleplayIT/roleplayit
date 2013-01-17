@@ -1,4 +1,4 @@
-<?
+<?php
 /**
  * Quick session wrapper to avoid session locks and keep the code clean
  */
