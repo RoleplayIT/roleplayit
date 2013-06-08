@@ -1,0 +1,21 @@
+[
+	{
+		"firstgid": 1,
+		"name": "floors",
+		"image": "images/iso-floors.png",
+		"tileSize": 48,
+		"cols": 5,
+		"rows": 2,
+		"flags": [0,0,0,0,0,0,0,0,0,0]
+	},
+	{
+		"firstgid": 11,
+		"name": "walls",
+		"image": "images/iso-walls.png",
+		"tileSize":  48,
+		"cols": 5,
+		"rows": 1,
+		"flags": [3,3,3,3,3]
+	}
+	
+]

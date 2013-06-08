@@ -1,7 +1,7 @@
 RoleplayIT
 ==========
 
-A simple interface to host roleplaying games with isometric/topdown view and barebones tools.
+A simple interface to host roleplaying games with isometric view (and eventually topdown) and barebones tools.
 
 ##Status
 

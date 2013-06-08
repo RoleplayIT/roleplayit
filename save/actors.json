@@ -1,0 +1,22 @@
+[
+	{
+		"id": 1,
+		"name": "Provus",
+		"body": 1,
+		"owner": "p1",
+		"map": 1,
+		"x": 4,
+		"y": 10,
+		"angle": 4
+	},
+	{
+		"id": 2,
+		"name": "Caius",
+		"body": 2,
+		"owner": "p2",
+		"map": 1,
+		"x": 7,
+		"y": 8,
+		"angle": 0
+	}
+]

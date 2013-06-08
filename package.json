@@ -1,0 +1,17 @@
+{
+  "name": "RoleplayIT",
+  "version": "0.0.2",
+  "description": "Isometric virtual tabletop interface",
+  "author": {
+    "name": "Alan v. Drake",
+    "email": "alan.van.drake@gmail.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/RoleplayIT/roleplayit"
+  },
+  "dependencies": {
+    "express.io": "1.1.11",
+	"underscore": "1.4.4"
+  }
+}

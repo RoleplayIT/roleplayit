@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="/style.css" type="text/css">
+<!-- jQuery -->
+<script src="js/jquery.min.js"></script>
+<link rel="stylesheet" href="js/jquery-ui.css" />
+<script src="js/jquery-ui.min.js"></script>
+
+<!-- jQuery scrollbar -->
+<link type="text/css" rel="stylesheet" href="js/jquery.mCustomScrollbar.css">
+<script src="js/jquery.mousewheel.min.js"></script>
+<script src="js/jquery.mCustomScrollbar.min.js"></script>
+<script>
+	(function($){
+		$(document).ready(function(){
+			$("#chat").mCustomScrollbar();
+			
+			//$("#stats,#inventory,#turn_order").draggable({ handle: '.header' });
+			$("#viewport *").on('mousemove', function(e){
+				e.originalEvent.preventDefault();
+			});
+		});
+			
+	})(jQuery);
+</script>
+
+<!-- Crafty JS -->
+<script type="text/javascript" src="js/crafty.js"></script>
+<script type="text/javascript" src="js/game.js"></script>
+<script type="text/javascript" src="js/diamondiso.js"></script>
+
+<!-- socket.io -->
+<script src="/socket.io/socket.io.js"></script>
+
+<!-- Game classes -->
+<script src="js/GameEvents.js"></script>
+<script src="js/Map.js"></script>
+<script src="js/Shadowcast.js"></script>
+<script src="js/Sender.js"></script>
+<script src="js/GUI.js"></script>
+
+<style>
+.DOM { image-rendering:optimizeSpeed;          /* Legal fallback                 */
+	image-rendering:-moz-crisp-edges;          /* Firefox                        */
+	image-rendering:-o-crisp-edges;            /* Opera                          */
+	image-rendering:-webkit-optimize-contrast; /* Chrome (and eventually Safari) */
+	image-rendering:optimize-contrast;         /* CSS3 Proposed                  */
+	-ms-interpolation-mode:nearest-neighbor;   /* IE8+                           */ 
+}
+
+#console { height: 300px;overflow-y:auto; background: #223; color: #888;padding: 10px; font-family: Consolas,'Lucida Console', Monaco, monospace; } 
+#console .el-0 { color: #999 } 
+#console .el-1 { color: #FFF } 
+#console .el-2 { color: #EA6 } 
+#console .el-3 { color: #D68 }  
+</style>
+
+</head>
+
+
+<body>
+<div class="column">
+	<!--
+	<a href="#" class="btn-icon play"></a>
+	<a href="#" class="btn-icon view2d"></a>
+	<a href="#" class="btn-icon turn-order-off"></a>
+	-->
+	<a href="#" class="btn-icon viewiso"></a>
+	&nbsp;&nbsp;
+	<a href="#" class="btn-icon pause"></a>
+	<a href="#" class="btn-icon turn-order"></a>
+	&nbsp;&nbsp;
+	<a href="#" class="btn-icon tiles"></a>
+	<a href="#" class="btn-icon objects"></a>
+	<a href="#" class="btn-icon actors"></a>
+
+	<div id="pane_viewport" >
+		<div id="cr-stage"></div>
+		
+		<div id="roll_request" style="display:none">
+			<div class="header">ROLL REQUEST</div>
+			<div class="content">
+				<span class="roll">1d20 + 5</span>
+				<span class="description">Perception</span>
+				<a href="javascript:GUI.rollRequestDialog.roll()">Roll</a>
+			</div>
+		</div>
+	</div>
+
+	<div id="chat_container">
+		<div class="buttons" style="float:right; padding-left:5px;">
+			<a href="#" class="btn-icon speak selected"></a><br />
+			<a href="#" class="btn-icon whisper"></a>
+		</div>
+		<div id="chat">
+			<!--<p><span style="color: red;"> Gregor rolls Perception 14 + 11 = <b>25</b></span></p>-->
+		</div>
+		<div class="input-pane">
+			<form onsubmit="AJAXsend(input_chat.value);return false;" accept-charset="utf-8">
+				<input type="text" name="input_chat" id="input_chat" />
+			</form>
+		</div>
+	</div>
+</div> <!-- /column -->
+
+<a href="logout">Logout</a>
+
+<div id="console" style="height: 300px;overflow-y:auto">
+</div>
+
+
+<script>
+io = io.connect();
+
+
+io.emit('sync');
+
+
+///////////////////////////////////////////
+/*/
+$(document).mousemove(
+  //ratelimit(function(e){
+  function(e) {
+ 
+	io.emit('client:updateCursor',
+	  {
+		'action': 'move',
+		'x': e.pageX,
+		'y': e.pageY,
+		'w': $(window).width(),
+		'h': $(window).height()
+	  })
+
+  //}, 40)
+  }
+)
+
+function m_move(mouse){
+			//console.log(mouse);
+  if($('#mouse_'+mouse['id']).length == 0) {
+	$('body').append(
+	  '<div class="mouse" id="mouse_'+mouse['id']+'">' + mouse['id'] + '</div>'
+	);
+  }
+
+  $('#mouse_'+mouse['id']).css({
+	'left' : mouse['x'] + 'px',
+	'top' : mouse['y'] + 'px'
+  })
+}
+io.on('client:updateCursor',
+	function(data) {
+
+		m_move(data);
+
+	}
+)
+
+function ratelimit(fn, ms) {
+  var last = (new Date()).getTime();
+  return (function() {
+	var now = (new Date()).getTime();
+	if (now - last > ms) {
+	  last = now;
+	  fn.apply(null, arguments);
+	}
+  });
+}
+//*/
+///////////////////////////////////////////
+
+function limit(min,max, value) {
+	return (value < min) ? min : (value > max ? max : value);
+}
+
+
+// temp code just to color differently the various arguments
+function test(x, y) {
+	if (x[y] == null) return '';
+	return '<span class="el-'+y+'">' + x[y] + '</span> ';
+}
+
+// bindings
+io.on('actor:move', function(data){
+	GameEvents.move(data.id, data.x, data.y, data.angle);
+});
+
+io.on('say', function(data){
+	console.log(data);
+	GameEvents.say(data.id, data.name, data.text);
+});
+
+
+
+function AJAXsend(txt) {
+	document.getElementById('input_chat').value='';
+	io.emit('say', { text: txt });
+}
+
+/// Moves the actor
+function move(idx, x, y, angle) {
+	io.emit('actor:move', {
+		id: idx,
+		x: x,
+		y: y,
+		angle: angle
+	});
+}
+
+</script>
+
+<style type="text/css">
+.mouse{width:10px; height:10px; background: #fff;position: absolute;}
+</style>
+</body>
+
+</html>
