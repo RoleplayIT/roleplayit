@@ -1,0 +1,15 @@
+{
+	"mage": {
+		"image": "images/char_mage.png",
+		"tileSize": [24,48],
+		"cellSize": 1,
+		"type": 1
+	},
+	"mage2": {
+		"image": "images/char_mage2.png",
+		"tileSize": [24,48],
+		"cellSize": 1,
+		"type": 1
+	}
+	
+}

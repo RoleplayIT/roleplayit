@@ -19,7 +19,7 @@ var fs = require('fs'),
 
 	Tilesets.serialize = function() {
 		try {
-			fs.writeFile('./save/tilesets.json', JSON.stringify(_maps, _tilesets, '\t'));
+			fs.writeFile('./save/tilesets.json', JSON.stringify(_tilesets, null, '\t'));
 			console.log('Tilesets: Saving...done');
 		}
 		catch (err) {

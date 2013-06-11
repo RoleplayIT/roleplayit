@@ -8,7 +8,8 @@ var express  = require('express.io'),
 	Dice	 = require('./server/dice');
 	Users	 = require('./server/users');
 	Maps	 = require('./server/map');
-	Tilesets = require('./server/tilesets');
+	Tilesets = require('./server/tilesets'),
+	Bodysets = require('./server/bodysets');
 
 
 app.http().io();
@@ -47,6 +48,7 @@ app.save = function() {
 app.load = function() {
 	Users.deserialize();
 	Tilesets.deserialize();
+	Bodysets.deserialize();
 	Maps.deserialize();
 	Actors.deserialize();
 
@@ -119,8 +121,8 @@ app.get('/style.css', function(req, res, next){
 })
 app.use('/public', express.static(__dirname + "/public"));
 app.use('/js',     express.static(__dirname + "/client/js"));
-app.use('/gfx',    express.static(__dirname + "/client/gfx"));
-app.use('/images', express.static(__dirname + "/client/images"));
+app.use('/gfx',    express.static(__dirname + "/client/gfx", { maxAge: 3600 }));
+app.use('/images', express.static(__dirname + "/client/images", { maxAge: 3600 }));
 app.use('/css',    express.static(__dirname + "/client/css"));
 app.listen(config.port);
 

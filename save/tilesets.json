@@ -16,6 +16,15 @@
 		"cols": 5,
 		"rows": 1,
 		"flags": [3,3,3,3,3]
+	},
+	{
+		"firstgid": 64,
+		"name": "scenery",
+		"image": "images/iso-objects.png",
+		"tileSize":  [48,72],
+		"cols": 6,
+		"rows": 2,
+		"flags": [0,1,1,1,3,1,1,1,1,0,0,0]
 	}
 	
 ]

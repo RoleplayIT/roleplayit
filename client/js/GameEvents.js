@@ -16,13 +16,13 @@ var GameEvents = {
 			
 			// TODO implement direction properly
 			switch (angle) {
-				case 0: entity.sprite(1,0,1,2).unflip("X");
+				case 0: entity.sprite(0,0);
 					break;
-				case 2: entity.sprite(0,0,1,2).unflip("X"); 
+				case 2: entity.sprite(1,0); 
 					break;
-				case 4: entity.sprite(0,0,1,2).flip("X");
+				case 4: entity.sprite(2,0);
 					break;
-				case 6: entity.sprite(1,0,1,2).flip("X");
+				case 6: entity.sprite(3,0);
 					break;
 			}
 			Game.viewport.place(entity, x, y, 2);

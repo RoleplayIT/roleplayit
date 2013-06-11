@@ -4,6 +4,7 @@ var crypto  = require('crypto'),
 	Dice    = require('./dice'),
 	Maps    = require('./map'),
 	Tilesets= require('./tilesets'),
+	Bodysets= require('./bodysets'),
 	Users	= require('./users');
 
 var AccessLevel = Users.AccessLevel;
@@ -85,6 +86,7 @@ module.exports = (function(io) {
 			tilesets: Tilesets.getTilesets(),
 			tileFlag: Tilesets.TileFlag,
 			tileFlags: Tilesets.TileFlags,
+			bodysets: Bodysets.getBodysets(),
 			actors: Actors.getActors() // TODO send only those that can be seen
 		});
 	})

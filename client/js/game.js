@@ -11,6 +11,7 @@ var Game = {
 }
 var TileFlags;
 var TileFlag;
+var Bodysets;
 
 // Draw map ///////////////////////////////////////////////////////////////
 function drawMap(useFov) {
@@ -86,50 +87,17 @@ $(document).ready(function() {
 	
 	
 	// Importing assets ///////////////////////////////////////////////////////
-	/*
-	Crafty.sprite(48, "images/sprite.png", {
-		tile0: [0,0],
-		tile1: [1,0],
-		tile2: [2,0],
-		tile3: [3,0],
-		tile4: [4,0],
-		tile5: [0,1],
-		tile6: [1,1],
-		tile7: [2,1],
-		tile8: [3,1],
-		tile9: [4,1],
-		tile10: [0,2,1,2],
-		tile11: [1,2,1,2],
-		tile12: [2,2,1,2],
-		tile13: [3,2,1,2],
-		tree: [4,2,1,2]
-	});
-	*/
-	Crafty.sprite(24,'images/char_mage.png', {
-		mage: [0,0,1,2]
-	});
-	
-	Crafty.sprite(24,'images/char_mage2.png', {
-		mage2: [0,0,1,2]
-	});
-	
+
 	Crafty.sprite(48,'images/iso_cursor.png', {
 		iso_cursor: [0,0]
 	});
 	
-	// Tile flags
-	/* comes with sync
-	TileFlags = [3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3];
-	TileFlag = {
-		Impassable: 0x01,
-		BlockLOS: 0x02
-	}
-	*/
+
 	
 	// Initialize viewport ////////////////////////////////////////////////////
 	Crafty.init();
 	Crafty.background("#111");
-	Crafty.viewport.init(640,420);
+	Crafty.viewport.init(640,400);
 	Crafty.viewport.scale(1);
 	//Crafty.canvas.init(); 
 	iso = Crafty.diamondIso.init(48,24,15,15);
@@ -148,7 +116,7 @@ $(document).ready(function() {
 		map.tilemap = data.tilemap;
 		
 		Game.map = map;
-		
+
 		updateFoV();
 		
 		drawMap(true);
@@ -212,7 +180,9 @@ $(document).ready(function() {
 			}).bind("KeyDown", function(e) {
 			//});
 			//Crafty.addEvent(this, Crafty.stage.elem, "keypress", function(e) {
-			
+				var actor = Game.actors[this._id];
+				this._direction = actor.angle;
+
 				//already processed this key event
 				if(this.lastMove+100 < e.timeStamp || !this._active) return;
 				
@@ -233,17 +203,17 @@ $(document).ready(function() {
 
 		
 				switch (this._direction) {
-					case 0: this.sprite(1,0,1,2).unflip("X");
+					case 0: this.sprite(0,0);
 						break;
-					case 2: this.sprite(0,0,1,2).unflip("X"); 
+					case 2: this.sprite(1,0); 
 						break;
-					case 4: this.sprite(0,0,1,2).flip("X");
+					case 4: this.sprite(2,0);
 						break;
-					case 6: this.sprite(1,0,1,2).flip("X");
+					case 6: this.sprite(3,0);
 						break;
 				}
-				
-				var actor = Game.actors[this._id];
+					
+				//var actor = Game.actors[this._id];
 				actor.angle = this._direction;
 
 				
@@ -420,19 +390,32 @@ $(document).ready(function() {
 				}
 			}
 			i++;
-			Crafty.sprite(tileset.tileSize, tileset.image, tiles);
-			console.log(tileset.tileSize, tileset.image, tiles);
+			if (Array.isArray(tileset.tileSize)) Crafty.sprite(tileset.tileSize[0], tileset.tileSize[1], tileset.image, tiles);
+			else Crafty.sprite(tileset.tileSize, tileset.image, tiles);
+			
 		}
+	}
+
+	function loadBodysets(bodysets) {
+		_.each(bodysets, function(body, index){
+			var spriteMap = {};
+			spriteMap[index] = [0,0];
+
+			if (Array.isArray(body.tileSize)) Crafty.sprite(body.tileSize[0], body.tileSize[1], body.image, spriteMap);
+			else Crafty.sprite(body.tileSize, body.image, spriteMap);
+		});
 	}
 
 	io.on('sync', function(data) {
 		// unwrap data
 		Game.userID = data.userID;
-		Game.currentActor= data.currentActor;
+		Game.currentActor = data.currentActor;
 		console.log(data);
 		loadTilesets(data.tilesets);
-		TileFlag = data.tileFlag;
+		TileFlag  = data.tileFlag;
 		TileFlags = data.tileFlags;
+		loadBodysets(data.bodysets);
+		Bodysets  = data.bodysets;
 
 		function _actor_onDragging(e) {
 			if (_mouseMode!='actor') return true;
@@ -455,22 +438,27 @@ $(document).ready(function() {
 			Sender.move(this._id, gc.x, gc.y, this._direction);
 		}
 
+							
+		//Game.viewport =  Crafty.diamondIso.init(48, 24, Game.map.width, Game.map.height);
+
 		var actors = data.actors;
-		console.log(actors);
 		for(var i=0;i<actors.length;i++) {
 			var myActor = new Actor(actors[i].x, actors[i].y, actors[i].angle);
 			Game.actors[actors[i].id] = myActor;
 			myActor.name = actors[i].name;
-			var entity = Crafty.e("2D, DOM, Actor, mage, Mouse, Draggable")
+			var entity = Crafty.e("2D, DOM, Actor, Mouse, Draggable")
 				.bind("Dragging", _actor_onDragging)
 				.bind("StopDrag", _actor_onStopDrag);
+			entity.addComponent(actors[i].body);
 			entity._id = actors[i].id;
+			entity._direction = actors[i].angle;
+			entity.sprite(actors[i].angle/2, 0);
 			myActor.ref = entity;
 
 			Game.viewport.place(entity, myActor.x, myActor.y, 2);
 		}
 
-			// player actor
+		// player actor
 		if (Game.currentActor>0) {
 			var player = Game.actors[Game.currentActor];
 			if (player) player.ref.addComponent("Isoway");
