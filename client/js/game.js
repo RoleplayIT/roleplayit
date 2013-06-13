@@ -1,4 +1,4 @@
-var _mouseMode='actor';
+var _mouseMode='tile';
 
 var Game = {
 	viewport: null,
@@ -7,14 +7,22 @@ var Game = {
 	objects:  [],
 	sightRadius: 8,
 	userID: 0,
-	currentActor: 0
+	currentActor: 0,
+	useFoV: true
+}
+
+var Mouse = {
+	tx: 0,
+	ty: 0,
+	button: false,
+	mode: "tile"
 }
 var TileFlags;
 var TileFlag;
 var Bodysets;
 
 // Draw map ///////////////////////////////////////////////////////////////
-function drawMap(useFov) {
+function drawMap() {
 	var map = Game.map;
 	for(var i = 0; i < map.width; i++) {
 		for(var j = 0; j < map.height; j++) {
@@ -23,7 +31,7 @@ function drawMap(useFov) {
 			if (tile==0) continue; // 0 is empty, always skip it
 			
 			var visible = true;
-			if (true) {
+			if (Game.useFoV) {
 				try {
 					
 					visible = map.fov[i][j];
@@ -80,7 +88,7 @@ function updateFoV() {
 		}
 		*/
 	}
-	drawMap(true);
+	drawMap();
 }
 
 $(document).ready(function() {
@@ -117,9 +125,9 @@ $(document).ready(function() {
 		
 		Game.map = map;
 
-		updateFoV();
+		if (Game.useFoV) updateFoV();
 		
-		drawMap(true);
+		drawMap();
 	});
 	
 	io.on('dice:request', function(data) {
@@ -180,8 +188,6 @@ $(document).ready(function() {
 			}).bind("KeyDown", function(e) {
 			//});
 			//Crafty.addEvent(this, Crafty.stage.elem, "keypress", function(e) {
-				var actor = Game.actors[this._id];
-				this._direction = actor.angle;
 
 				//already processed this key event
 				if(this.lastMove+100 < e.timeStamp || !this._active) return;
@@ -191,6 +197,8 @@ $(document).ready(function() {
 					&& !this.isDown(Crafty.keys.LEFT_ARROW) 
 					&& !this.isDown(Crafty.keys.RIGHT_ARROW) ) return; // No useful keystroke
 				
+				var actor = Game.actors[this._id];
+				this._direction = actor.angle;
 
 				//turning
 				if(this.isDown(Crafty.keys.LEFT_ARROW)) {
@@ -276,29 +284,42 @@ $(document).ready(function() {
 	//*/
 	var iso_cursor = Crafty.e("2D, DOM, iso_cursor");
 	
+
 	Crafty.addEvent(this, Crafty.stage.elem, "mousemove", function(e) {
-		if (_mouseMode!='tile') return;
 		var gc = iso.px2pos(  Crafty.mousePos.x,  Crafty.mousePos.y );
-		//console.log(gc);
-		//iso.place(gc.x, gc.y, 0, this);
-		iso.place(iso_cursor, gc.x, gc.y, 1000);
-		if (_button === 0) iso.place( Crafty.e("2D, DOM, tile0"), gc.x, gc.y, 0 );
-		//console.log(_button);
-		//console.log(e);
+		if (gc.x != Mouse.tx || gc.y != Mouse.ty) {
+			Mouse.tx = gc.x;
+			Mouse.ty = gc.y;
+			onTileOver(gc.x, gc.y);
+		}
+		
+		
+		function onTileOver(x, y) {
+			if (Mouse.mode!='tile') return;
+
+			//console.log(gc);
+			//iso.place(gc.x, gc.y, 0, this);
+			iso.place(iso_cursor, x, y, 1000);
+			//if (_button === 0) iso.place( Crafty.e("2D, DOM, tile0"), gc.x, gc.y, 0 );
+			if (Mouse.button === 0) io.emit('map:draw', { map: Game.map.id, tileId: 6, x: gc.x, y: gc.y });
+			
+			//console.log(e);
+		}
+
 	});
-	var _button = false;
 	//*
 	Crafty.addEvent(this, Crafty.stage.elem, "mousedown", function(e) {
-		_button = e.button;
+		Mouse.button = e.button;
 		
-		if (_mouseMode!='tile') return;
+		if (Mouse.mode!='tile') return;
+		//var gc = iso.px2pos(  Crafty.mousePos.x,  Crafty.mousePos.y );
 
-		var gc = iso.px2pos(  Crafty.mousePos.x,  Crafty.mousePos.y );
-		if (e.button === 0) iso.place( Crafty.e("2D, DOM, tile0"), gc.x, gc.y, 0 );
+		//if (e.button === 0) iso.place( Crafty.e("2D, DOM, tile0"), gc.x, gc.y, 0 );
+		//if (e.button === 0) io.emit('map:draw', { map: Game.map.id, tileId: 0, x: gc.x, y: gc.y });
 	});
 	
 	Crafty.addEvent(this, Crafty.stage.elem, "mouseup", function(e) {
-		_button = false;
+		Mouse.button = false;
 	});
 	//*/
 	}

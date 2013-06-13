@@ -174,15 +174,8 @@ function ratelimit(fn, ms) {
 //*/
 ///////////////////////////////////////////
 
-function limit(min,max, value) {
+function clamp(min,max, value) {
 	return (value < min) ? min : (value > max ? max : value);
-}
-
-
-// temp code just to color differently the various arguments
-function test(x, y) {
-	if (x[y] == null) return '';
-	return '<span class="el-'+y+'">' + x[y] + '</span> ';
 }
 
 // bindings
@@ -200,16 +193,6 @@ io.on('say', function(data){
 function AJAXsend(txt) {
 	document.getElementById('input_chat').value='';
 	io.emit('say', { text: txt });
-}
-
-/// Moves the actor
-function move(idx, x, y, angle) {
-	io.emit('actor:move', {
-		id: idx,
-		x: x,
-		y: y,
-		angle: angle
-	});
 }
 
 </script>

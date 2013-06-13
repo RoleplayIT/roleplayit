@@ -92,6 +92,9 @@ var fs = require('fs'),
 	 *	Draw one or more tiles on the map
 	 */
 	Maps.draw = function(map, tileId, x, y) {
+		// check for invalid coordinates
+		if (x<0 || x>= map.width || y<0 || y>= map.height ) return;
+
 		// array of tiles
 		if (Array.isArray(tileId)) {
 			var count = tileId.length;
