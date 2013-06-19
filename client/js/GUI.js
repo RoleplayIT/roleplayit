@@ -74,9 +74,57 @@ var GUI = {
 	///////////////////////////////////////////////////////////////
 	tilesPane:
 	{
-		show: function() {},
-		close: function() {},
-		pick: function(idx) {}
+		show: function() {
+			var html_out = '<div id="tilesPaneTabs">';
+			var i = 0;
+			var max = Tilesets.length;
+
+			// tabs
+			html_out += '<ul>';
+			while(i<max) {
+				var tileset = Tilesets[i];
+				var name = tileset.name;
+
+				html_out += '<li><a href="#tilesPaneTab-' + i + '">' + name + '</a></li>';
+				i++;
+			}
+			html_out += '</ul>';
+			// actual tiles
+			i = 0;
+			while(i<max) {
+				var tileset = Tilesets[i];
+				var gid = tileset.firstgid;
+				var width = tileset.cols;
+				var height = tileset.rows;
+				var tileWidth  = Array.isArray(tileset.tileSize) ? tileset.tileSize[0] : tileset.tileSize;
+				var tileHeight = Array.isArray(tileset.tileSize) ? tileset.tileSize[1] : tileset.tileSize;
+
+
+				html_out += '<div id="tilesPaneTab-' + i + '">';
+
+
+				for (y=0;y<height;y++) {
+					for (x=0;x<width;x++) {
+						html_out += '<div style="float:left; width: ' + tileWidth + 'px; height: ' + tileHeight 
+							+ 'px; background: url(' + tileset.image + ') -' + (x*tileWidth) + 'px -' + (y*tileHeight)
+							+ 'px;"  onclick="GUI.tilesPane.pick(' + (gid++) + ')"></div>';
+					}
+				}
+				html_out += '</div>';
+				i++;
+			}
+			html_out += '<div style="clear:both;"></div>';
+			html_out += '</div>';
+			$('#tilesPane').html( html_out );
+			$('#tilesPaneTabs').tabs();
+			$('#tilesPane').show();
+		},
+		close: function() {
+			$('#tilesPane').hide();
+		},
+		pick: function(id) {
+			Mouse.tileId = id;
+		}
 		
 	},
 
@@ -84,7 +132,19 @@ var GUI = {
 	toolbar: 
 	{
 		toggleMapsPane: function() {},
-		toggleActorsPane: function() {}
+		toggleActorsPane: function() {},
+		modeActor: function() {
+			$('#IcoModeTile,#IcoModeObject').removeClass('selected');
+			$('#IcoModeActor').addClass('selected');
+			Mouse.setMode('actor');
+			GUI.tilesPane.close();
+		},
+		modeTile: function() {
+			$('#IcoModeActor,#IcoModeObject').removeClass('selected');
+			$('#IcoModeTile').addClass('selected');
+			Mouse.setMode('tile');
+			GUI.tilesPane.show();
+		}
 	},
 
 	///////////////////////////////////////////////////////////////

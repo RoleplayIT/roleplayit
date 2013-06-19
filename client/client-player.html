@@ -44,22 +44,6 @@
 <script src="js/Sender.js"></script>
 <script src="js/GUI.js"></script>
 
-<style>
-.DOM { image-rendering:optimizeSpeed;          /* Legal fallback                 */
-	image-rendering:-moz-crisp-edges;          /* Firefox                        */
-	image-rendering:-o-crisp-edges;            /* Opera                          */
-	image-rendering:-webkit-optimize-contrast; /* Chrome (and eventually Safari) */
-	image-rendering:optimize-contrast;         /* CSS3 Proposed                  */
-	-ms-interpolation-mode:nearest-neighbor;   /* IE8+                           */ 
-}
-
-#console { height: 300px;overflow-y:auto; background: #223; color: #888;padding: 10px; font-family: Consolas,'Lucida Console', Monaco, monospace; } 
-#console .el-0 { color: #999 } 
-#console .el-1 { color: #FFF } 
-#console .el-2 { color: #EA6 } 
-#console .el-3 { color: #D68 }  
-</style>
-
 </head>
 
 
@@ -75,9 +59,9 @@
 	<a href="#" class="btn-icon pause"></a>
 	<a href="#" class="btn-icon turn-order"></a>
 	&nbsp;&nbsp;
-	<a href="#" class="btn-icon tiles"></a>
-	<a href="#" class="btn-icon objects"></a>
-	<a href="#" class="btn-icon actors"></a>
+	<a id="IcoModeTile" href="javascript:GUI.toolbar.modeTile()" class="btn-icon tiles"></a>
+	<a id="IcoModeObject" href="#" class="btn-icon objects"></a>
+	<a id="IcoModeActor" href="javascript:GUI.toolbar.modeActor()" class="btn-icon actors"></a>
 
 	<div id="pane_viewport" >
 		<div id="cr-stage"></div>
@@ -110,8 +94,8 @@
 
 <a href="logout">Logout</a>
 
-<div id="console" style="height: 300px;overflow-y:auto">
-</div>
+<!--div id="console" style="height: 300px;overflow-y:auto">
+</div-->
 
 
 <script>
@@ -200,6 +184,7 @@ function AJAXsend(txt) {
 <style type="text/css">
 .mouse{width:10px; height:10px; background: #fff;position: absolute;}
 </style>
+<div id="tilesPane"></div>
 </body>
 
 </html>

@@ -5,17 +5,17 @@
 		"image": "images/iso-floors.png",
 		"tileSize": 48,
 		"cols": 5,
-		"rows": 2,
-		"flags": [0,0,0,0,0,0,0,0,0,0]
+		"rows": 3,
+		"flags": [0,0,0,0,0,0,0,0,0,0,1,0,0,0,0]
 	},
 	{
-		"firstgid": 11,
+		"firstgid": 16,
 		"name": "walls",
 		"image": "images/iso-walls.png",
 		"tileSize":  48,
-		"cols": 5,
+		"cols": 4,
 		"rows": 1,
-		"flags": [3,3,3,3,3]
+		"flags": [3,3,3,3]
 	},
 	{
 		"firstgid": 64,

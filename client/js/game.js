@@ -1,4 +1,3 @@
-var _mouseMode='tile';
 
 var Game = {
 	viewport: null,
@@ -15,8 +14,36 @@ var Mouse = {
 	tx: 0,
 	ty: 0,
 	button: false,
-	mode: "tile"
+	mode: "tile", //actor, tile, scenery
+	tileId: 0,
+	setMode: function(mode) {
+		Crafty('Actor').each(function() { this.removeComponent('Mouse'); });
+		Crafty('iso_cursor').visible = false;
+
+		/*
+		if (Game.currentActor>0) {
+			var player = Game.actors[Game.currentActor];
+			if (player) player.ref.removeComponent("Isoway",true);
+		}
+		*/
+		switch(mode) {
+			case 'tile':
+				this.mode = 'tile';
+				Crafty('iso_cursor').visible = true;
+				Game.useFoV = false;
+				drawMap();
+				break;
+			case 'actor':
+				this.mode = 'actor';
+				Crafty('Actor').each(function() { this.addComponent('Mouse'); });
+				Game.useFoV = true;
+				drawMap();
+				//if (player) player.ref.addComponent("Isoway");
+				break;
+		}
+	}
 }
+var Tilesets;
 var TileFlags;
 var TileFlag;
 var Bodysets;
@@ -24,6 +51,8 @@ var Bodysets;
 // Draw map ///////////////////////////////////////////////////////////////
 function drawMap() {
 	var map = Game.map;
+	if (!map) return;
+
 	for(var i = 0; i < map.width; i++) {
 		for(var j = 0; j < map.height; j++) {
 			
@@ -116,6 +145,52 @@ $(document).ready(function() {
 	// Load map from server
 	io.on('map:update', function(data) {
 		// Create map object
+		var new_tilemap = data.tilemap;
+		var old_tilemap = Game.map.tilemap;
+		
+		// find and delete stuff that has been changed
+		for(i=0;i<old_tilemap.length;i++) {
+			for(j=0;j<old_tilemap[i].length;j++) {
+				var tile = old_tilemap[i][j];
+				var new_tile = new_tilemap[i][j];
+				if (tile != new_tile) {
+					if (Game.map.tilemap_e[i][j]) {
+						Game.map.tilemap_e[i][j].destroy();
+						Game.map.tilemap_e[i][j] = null;
+					}
+				}
+				entities = Game.map.tilemap_e[i];
+			}
+		}
+		Game.map.tilemap = data.tilemap;
+		if (Game.useFoV) updateFoV();
+		
+		drawMap();
+	});
+
+	io.on('map:load', function(data) {
+		// wipe old map
+		if (Game.map) {
+			Game.map.id = null;
+			Game.map.name = null;
+			Game.map.width = null;
+			Game.map.height = null;
+			Game.map.tilemap = null;
+			
+			for(i=0;i<Game.map.tilemap_e.length;i++) {
+				entities = Game.map.tilemap_e[i];
+				for(j=0;j<entities.length;j++) {
+					if (entities[j]) {
+						entities[j].destroy();
+						entities[j] = null;
+					}
+				}
+			}
+
+
+		}
+
+		// Create map object
 		var map = new Map(data.width, data.height);
 		map.id = data.id;
 		map.name = data.name;
@@ -188,6 +263,7 @@ $(document).ready(function() {
 			}).bind("KeyDown", function(e) {
 			//});
 			//Crafty.addEvent(this, Crafty.stage.elem, "keypress", function(e) {
+				if (Mouse.mode!='actor') return;
 
 				//already processed this key event
 				if(this.lastMove+100 < e.timeStamp || !this._active) return;
@@ -301,7 +377,7 @@ $(document).ready(function() {
 			//iso.place(gc.x, gc.y, 0, this);
 			iso.place(iso_cursor, x, y, 1000);
 			//if (_button === 0) iso.place( Crafty.e("2D, DOM, tile0"), gc.x, gc.y, 0 );
-			if (Mouse.button === 0) io.emit('map:draw', { map: Game.map.id, tileId: 6, x: gc.x, y: gc.y });
+			if (Mouse.button === 0) io.emit('map:draw', { map: Game.map.id, tileId: Mouse.tileId, x: gc.x, y: gc.y });
 			
 			//console.log(e);
 		}
@@ -312,6 +388,8 @@ $(document).ready(function() {
 		Mouse.button = e.button;
 		
 		if (Mouse.mode!='tile') return;
+		if (Mouse.button === 0) io.emit('map:draw', { map: Game.map.id, tileId: Mouse.tileId, x: Mouse.tx, y: Mouse.ty });
+		if (Mouse.button === 2) Mouse.tileId = Game.map.tilemap[Mouse.tx][Mouse.ty];
 		//var gc = iso.px2pos(  Crafty.mousePos.x,  Crafty.mousePos.y );
 
 		//if (e.button === 0) iso.place( Crafty.e("2D, DOM, tile0"), gc.x, gc.y, 0 );
@@ -331,7 +409,7 @@ $(document).ready(function() {
 	
 	// Mouse panning //////////////////////////////////////////////////////////
 	Crafty.addEvent(this, Crafty.stage.elem, "mousedown", function(e) {
-		if(e.button !== 2) return;
+		if(e.button !== 1) return;
 		var base = {x: e.clientX, y: e.clientY};
 
 		function scroll(e) {
@@ -413,7 +491,6 @@ $(document).ready(function() {
 			i++;
 			if (Array.isArray(tileset.tileSize)) Crafty.sprite(tileset.tileSize[0], tileset.tileSize[1], tileset.image, tiles);
 			else Crafty.sprite(tileset.tileSize, tileset.image, tiles);
-			
 		}
 	}
 
@@ -433,13 +510,14 @@ $(document).ready(function() {
 		Game.currentActor = data.currentActor;
 		console.log(data);
 		loadTilesets(data.tilesets);
+		Tilesets = data.tilesets;
 		TileFlag  = data.tileFlag;
 		TileFlags = data.tileFlags;
 		loadBodysets(data.bodysets);
 		Bodysets  = data.bodysets;
 
 		function _actor_onDragging(e) {
-			if (_mouseMode!='actor') return true;
+			if (Mouse.mode!='actor') return true;
 			var gc = Game.viewport.px2pos(  Crafty.mousePos.x,  Crafty.mousePos.y );
 			Game.viewport.place(this, gc.x, gc.y, 2);
 		}
@@ -474,6 +552,9 @@ $(document).ready(function() {
 			entity._id = actors[i].id;
 			entity._direction = actors[i].angle;
 			entity.sprite(actors[i].angle/2, 0);
+			var name_label = Crafty.e("2D, DOM, Text").text(actors[i].name).textColor('#FFFFFF').attr({ x: -5, y: -15 }).unselectable();
+			name_label.z = 9000;
+			entity.attach(name_label);
 			myActor.ref = entity;
 
 			Game.viewport.place(entity, myActor.x, myActor.y, 2);
@@ -485,6 +566,8 @@ $(document).ready(function() {
 			if (player) player.ref.addComponent("Isoway");
 		}
 
+		Mouse.setMode('actor');
+
 	});
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -492,7 +575,3 @@ $(document).ready(function() {
 ////////////////////////////////////////////////////////////////////////////////
 });
 
-function mouseMode(mode)
-{
-	_mouseMode = mode;
-}

@@ -93,7 +93,7 @@ module.exports = (function(io) {
 
 	io.route('map:get', function(req) {
 		console.log('map:get');
-		req.io.emit('map:update', Maps.getMaps()[0]);
+		req.io.emit('map:load', Maps.getMaps()[0]);
 	})
 
 	io.route('say', function(req) {

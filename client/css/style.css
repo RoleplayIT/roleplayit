@@ -61,3 +61,5 @@ body{ background: #000; color: #ddd; font-family: Tahoma, Arial, sans-serif;}
 #inventory .count { width: 24px; display: inline-block; text-align:right; margin-right: 5px; color: #aaa;}
 #inventory .header { background: #666;  text-align: center; color: #000; }
 
+#tilesPane { width: 480px; height: 400px; overflow-y: auto; z-index:9999999; position:absolute; right: 0;}
+
