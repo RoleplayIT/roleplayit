@@ -18,7 +18,7 @@ Map = function (width, height) {
 	this.canSee = function (coord) {
 		try {
 
-			return !(TileFlags[this.tilemap[0][coord.x][coord.y]] & TileFlag.BlockLOS) || !(TileFlags[this.tilemap[1][coord.x][coord.y]] & TileFlag.BlockLOS);
+			return !(TileFlags[this.tilemap[0][coord.x][coord.y]] & TileFlags[this.tilemap[1][coord.x][coord.y]] & TileFlag.BlockLOS);
 			
 		}
 		catch (e) { return; false; }
@@ -27,7 +27,7 @@ Map = function (width, height) {
 	this.canWalk = function (coord){
 		try {
 
-			return (TileFlags[this.tilemap[0][coord.x][coord.y]] & TileFlag.Impassable) & (TileFlags[this.tilemap[1][coord.x][coord.y]] & TileFlag.Impassable);
+			return (TileFlags[this.tilemap[0][coord.x][coord.y]] & TileFlags[this.tilemap[1][coord.x][coord.y]] & TileFlag.Impassable);
 		}
 		catch (e) { return; false; }
 	}
