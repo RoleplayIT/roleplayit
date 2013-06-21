@@ -21,11 +21,12 @@ var Sender = {
 		});
 		
 	},
-	draw: function(map, tileId, x, y)
+	draw: function(map, tileId, layer, x, y)
 	{
 		io.emit('map:draw', {
 			map: map, 
 			tileId: tileId,
+			layer: layer,
 			x: x,
 			y: y
 		});

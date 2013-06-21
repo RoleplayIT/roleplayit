@@ -7,7 +7,8 @@ var Game = {
 	sightRadius: 8,
 	userID: 0,
 	currentActor: 0,
-	useFoV: true
+	useFoV: true,
+	fogOfWar: true
 }
 
 var Mouse = {
@@ -16,6 +17,7 @@ var Mouse = {
 	button: false,
 	mode: "tile", //actor, tile, scenery
 	tileId: 0,
+	layer: 0,
 	setMode: function(mode) {
 		Crafty('Actor').each(function() { this.removeComponent('Mouse'); });
 		Crafty('iso_cursor').visible = false;
@@ -53,41 +55,50 @@ function drawMap() {
 	var map = Game.map;
 	if (!map) return;
 
-	for(var i = 0; i < map.width; i++) {
-		for(var j = 0; j < map.height; j++) {
-			
-			var tile = Game.map.tilemap[i][j];
-			if (tile==0) continue; // 0 is empty, always skip it
-			
-			var visible = true;
-			if (Game.useFoV) {
-				try {
+	for(var layer = 0; layer < map.tilemap.length; layer++) {
+		var tilemap = Game.map.tilemap[layer];
+
+		for(var i = 0; i < map.width; i++) {
+			for(var j = 0; j < map.height; j++) {
+				
+				var tile = tilemap[i][j];
+				if (tile==0) continue; // 0 is empty, always skip it
+				
+				var visible = true;
+				if (Game.useFoV) {
+					try {
+						
+						visible = map.fov[i][j];
+					} catch (e) { visible = false;}
 					
-					visible = map.fov[i][j];
-				} catch (e) { visible = false;}
-				
-			}
-			// did we already create that tile ?
-			if (Game.map.tilemap_e[i][j] != null) {
-				//console.log('updateTile');
-				//Game.map.tilemap_e[i][j].visible = visible; // update visibility
-				if (visible) {
-					if (Game.map.tilemap_e[i][j].alpha != 1.0) Game.map.tilemap_e[i][j].alpha = 1.0;
 				}
-				else if (Game.map.tilemap_e[i][j].alpha != 0.3) Game.map.tilemap_e[i][j].alpha = 0.3;
-			}
-			else // no, place a new one
-			{
-				if (!visible) continue;
-				//console.log('createTile');
-				var entity = Crafty.e("2D, DOM, tile" + tile);
-				Game.map.tilemap_e[i][j] = entity; // store reference to crafty entity
-				
-				//console.log(tile.ref);
-				Game.viewport.place(entity, i, j, 0);
-			}
-		}
-	}
+				// did we already create that tile ?
+				if (Game.map.tilemap_e[layer][i][j] != null) {
+					//console.log('updateTile');
+					if (Game.fogOfWar) {
+						if (visible) {
+							if (Game.map.tilemap_e[layer][i][j].alpha != 1.0) Game.map.tilemap_e[layer][i][j].alpha = 1.0;
+						}
+						else if (Game.map.tilemap_e[layer][i][j].alpha != 0.3) Game.map.tilemap_e[layer][i][j].alpha = 0.3;
+					}
+					else {
+						if (Game.map.tilemap_e[layer][i][j].visible != visible) Game.map.tilemap_e[layer][i][j].visible = visible;;
+						if (Game.map.tilemap_e[layer][i][j].alpha != 1.0) Game.map.tilemap_e[layer][i][j].alpha = 1.0;
+					}
+				}
+				else // no, place a new one
+				{
+					if (!visible) continue;
+					//console.log('createTile');
+					var entity = Crafty.e("2D, DOM, tile" + tile);
+					Game.map.tilemap_e[layer][i][j] = entity; // store reference to crafty entity
+					
+					//console.log(tile.ref);
+					Game.viewport.place(entity, i, j, layer);
+				}
+			} // j
+		} // i
+	} // layer
 }
 	
 // Update Field of View ///////////////////////////////////////////////////
@@ -144,24 +155,25 @@ $(document).ready(function() {
 	
 	// Load map from server
 	io.on('map:update', function(data) {
-		// Create map object
-		var new_tilemap = data.tilemap;
-		var old_tilemap = Game.map.tilemap;
 		
 		// find and delete stuff that has been changed
-		for(i=0;i<old_tilemap.length;i++) {
-			for(j=0;j<old_tilemap[i].length;j++) {
-				var tile = old_tilemap[i][j];
-				var new_tile = new_tilemap[i][j];
-				if (tile != new_tile) {
-					if (Game.map.tilemap_e[i][j]) {
-						Game.map.tilemap_e[i][j].destroy();
-						Game.map.tilemap_e[i][j] = null;
+		for(layer=0;layer<Game.map.tilemap.length;layer++) {
+			var new_tilemap = data.tilemap[layer];
+			var old_tilemap = Game.map.tilemap[layer];
+			
+			for(i=0;i<old_tilemap.length;i++) {
+				for(j=0;j<old_tilemap[i].length;j++) {
+					var tile = old_tilemap[i][j];
+					var new_tile = new_tilemap[i][j];
+					if (tile != new_tile) {
+						if (Game.map.tilemap_e[layer][i][j]) {
+							Game.map.tilemap_e[layer][i][j].destroy();
+							Game.map.tilemap_e[layer][i][j] = null;
+						}
 					}
-				}
-				entities = Game.map.tilemap_e[i];
-			}
-		}
+				} // j
+			} // i
+		} // layer
 		Game.map.tilemap = data.tilemap;
 		if (Game.useFoV) updateFoV();
 		
@@ -177,16 +189,17 @@ $(document).ready(function() {
 			Game.map.height = null;
 			Game.map.tilemap = null;
 			
-			for(i=0;i<Game.map.tilemap_e.length;i++) {
-				entities = Game.map.tilemap_e[i];
-				for(j=0;j<entities.length;j++) {
-					if (entities[j]) {
-						entities[j].destroy();
-						entities[j] = null;
+			for(layer=0;layer<Game.map.tilemap_e.length;layer++) {
+				for(i=0;i<Game.map.tilemap_e[layer].length;i++) {
+					entities = Game.map.tilemap_e[layer][i];
+					for(j=0;j<entities.length;j++) {
+						if (entities[j]) {
+							entities[j].destroy();
+							entities[j] = null;
+						}
 					}
 				}
 			}
-
 
 		}
 
@@ -377,7 +390,7 @@ $(document).ready(function() {
 			//iso.place(gc.x, gc.y, 0, this);
 			iso.place(iso_cursor, x, y, 1000);
 			//if (_button === 0) iso.place( Crafty.e("2D, DOM, tile0"), gc.x, gc.y, 0 );
-			if (Mouse.button === 0) io.emit('map:draw', { map: Game.map.id, tileId: Mouse.tileId, x: gc.x, y: gc.y });
+			if (Mouse.button === 0) io.emit('map:draw', { map: Game.map.id, tileId: Mouse.tileId, layer: Mouse.layer, x: gc.x, y: gc.y });
 			
 			//console.log(e);
 		}
@@ -388,8 +401,8 @@ $(document).ready(function() {
 		Mouse.button = e.button;
 		
 		if (Mouse.mode!='tile') return;
-		if (Mouse.button === 0) io.emit('map:draw', { map: Game.map.id, tileId: Mouse.tileId, x: Mouse.tx, y: Mouse.ty });
-		if (Mouse.button === 2) Mouse.tileId = Game.map.tilemap[Mouse.tx][Mouse.ty];
+		if (Mouse.button === 0) io.emit('map:draw', { map: Game.map.id, tileId: Mouse.tileId, layer: Mouse.layer, x: Mouse.tx, y: Mouse.ty });
+		if (Mouse.button === 2) Mouse.tileId = Game.map.tilemap[Mouse.layer][Mouse.tx][Mouse.ty];
 		//var gc = iso.px2pos(  Crafty.mousePos.x,  Crafty.mousePos.y );
 
 		//if (e.button === 0) iso.place( Crafty.e("2D, DOM, tile0"), gc.x, gc.y, 0 );

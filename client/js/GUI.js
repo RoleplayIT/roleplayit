@@ -143,6 +143,14 @@ var GUI = {
 			$('#IcoModeActor,#IcoModeObject').removeClass('selected');
 			$('#IcoModeTile').addClass('selected');
 			Mouse.setMode('tile');
+			Mouse.layer = 0;
+			GUI.tilesPane.show();
+		},
+		modeObject: function() {
+			$('#IcoModeActor,#IcoModeTile').removeClass('selected');
+			$('#IcoModeObject').addClass('selected');
+			Mouse.setMode('tile');
+			Mouse.layer = 1;
 			GUI.tilesPane.show();
 		}
 	},

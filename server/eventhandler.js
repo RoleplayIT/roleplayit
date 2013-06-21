@@ -151,7 +151,7 @@ module.exports = (function(io) {
 				var tile = req.data;
 				// Map.checkMovement(actor.map, to.x, to,y);
 				//if (checkAccessLevel(req, AccessLevel.Administrator)) {
-					Maps.draw(map, tile.tileId, tile.x, tile.y);
+					Maps.draw(map, tile.tileId, tile.layer, tile.x, tile.y);
 
 				//}
 				/*
@@ -163,7 +163,7 @@ module.exports = (function(io) {
 				}
 				io.broadcast('map:update', data);
 				*/
-				req.io.emit('map:update', Maps.getMaps()[0]);
+				io.broadcast('map:update', Maps.getMaps()[0]);
 
 			}
 		}

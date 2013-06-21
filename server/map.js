@@ -27,11 +27,14 @@ var fs = require('fs'),
 
 		map.tilemap = [];
 
-		for (var i=0; i < width; i++) {
-			map.tilemap[i] = [];
-		
-			for (var j=0; j < height; j++) {
-				map.tilemap[i][j] = null;
+		for (var layer=0; layer < 2; layer++) {
+			map.tilemap[layer] = [];
+			for (var i=0; i < width; i++) {
+				map.tilemap[layer][i] = [];
+			
+				for (var j=0; j < height; j++) {
+					map.tilemap[layer][i][j] = null;
+				}
 			}
 		}
 	}
@@ -91,17 +94,17 @@ var fs = require('fs'),
 	/**
 	 *	Draw one or more tiles on the map
 	 */
-	Maps.draw = function(map, tileId, x, y) {
+	Maps.draw = function(map, tileId, layer, x, y) {
 		// check for invalid coordinates
 		if (x<0 || x>= map.width || y<0 || y>= map.height ) return;
 
 		// array of tiles
 		if (Array.isArray(tileId)) {
 			var count = tileId.length;
-			for (i=0;i<count;i++) map.tilemap[tileId[i][1]][tileId[i][2]] = tileId[i][0];
+			for (i=0;i<count;i++) map.tilemap[layer][tileId[i][1]][tileId[i][2]] = tileId[i][0];
 		}
 		else { // single tile
-			map.tilemap[x][y] = tileId;
+			map.tilemap[layer][x][y] = tileId;
 		}
 		/*
 			tile { map, tiledId, x, y}
@@ -116,7 +119,7 @@ var fs = require('fs'),
 
 	Maps.serialize = function() {
 		try {
-			fs.writeFile('./save/maps.json', JSON.stringify(_maps, null, '\t'));
+			fs.writeFile('./save/maps.json', JSON.stringify(_maps));
 			console.log('Maps: Saving...done');
 		}
 		catch (err) {
