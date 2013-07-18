@@ -18,7 +18,7 @@ module.exports = (function(io) {
 	// Route bindings
 	io.route('actor', {
 		move: function(req) {
-			console.log('actor:move');
+			
 			var actor = Actors.getById(req.data.id);
 			if (actor) {
 				var to = req.data;
@@ -113,7 +113,7 @@ module.exports = (function(io) {
 		var username = req.session.username;
 
 		if (checkAccessLevel(req, AccessLevel.Administrator)) {
-			// admins roll what the want
+			// admins roll what they want
 			io.broadcast('say', {
 				id: -1,
 				name: username,
@@ -145,7 +145,7 @@ module.exports = (function(io) {
 	
 	io.route('map', {
 		draw: function(req) {
-			console.log('map:draw');
+			//console.log('map:draw');
 			var map = Maps.getById(req.data.map);
 			if (map) {
 				var tile = req.data;
@@ -163,6 +163,7 @@ module.exports = (function(io) {
 				}
 				io.broadcast('map:update', data);
 				*/
+				// TODO broadcast only to those in the current map
 				io.broadcast('map:update', Maps.getMaps()[0]);
 
 			}

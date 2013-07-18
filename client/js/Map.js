@@ -26,10 +26,12 @@ Map = function (width, height) {
 	
 	this.canWalk = function (coord){
 		try {
-
-			return (TileFlags[this.tilemap[0][coord.x][coord.y]] & TileFlags[this.tilemap[1][coord.x][coord.y]] & TileFlag.Impassable);
+			if (TileFlags[this.tilemap[1][coord.x][coord.y]] == 0)
+				return !(TileFlags[this.tilemap[0][coord.x][coord.y]] & TileFlag.Impassable);
+			else
+				return !(TileFlags[this.tilemap[0][coord.x][coord.y]] & TileFlags[this.tilemap[1][coord.x][coord.y]] & TileFlag.Impassable);
 		}
-		catch (e) { return; false; }
+		catch (e) { return false; }
 	}
 	
 	// constructor routine

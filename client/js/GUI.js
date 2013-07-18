@@ -115,7 +115,7 @@ var GUI = {
 			}
 			html_out += '<div style="clear:both;"></div>';
 			html_out += '</div>';
-			$('#tilesPane').html( html_out );
+			$('#tilesPane .content').html( html_out );
 			$('#tilesPaneTabs').tabs();
 			$('#tilesPane').show();
 		},
@@ -134,21 +134,21 @@ var GUI = {
 		toggleMapsPane: function() {},
 		toggleActorsPane: function() {},
 		modeActor: function() {
-			$('#IcoModeTile,#IcoModeObject').removeClass('selected');
+			$('#IcoModeTile,#IcoModeScenery').removeClass('selected');
 			$('#IcoModeActor').addClass('selected');
 			Mouse.setMode('actor');
 			GUI.tilesPane.close();
 		},
 		modeTile: function() {
-			$('#IcoModeActor,#IcoModeObject').removeClass('selected');
+			$('#IcoModeActor,#IcoModeScenery').removeClass('selected');
 			$('#IcoModeTile').addClass('selected');
 			Mouse.setMode('tile');
 			Mouse.layer = 0;
 			GUI.tilesPane.show();
 		},
-		modeObject: function() {
+		modeScenery: function() {
 			$('#IcoModeActor,#IcoModeTile').removeClass('selected');
-			$('#IcoModeObject').addClass('selected');
+			$('#IcoModeScenery').addClass('selected');
 			Mouse.setMode('tile');
 			Mouse.layer = 1;
 			GUI.tilesPane.show();

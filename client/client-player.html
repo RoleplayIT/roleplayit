@@ -6,6 +6,7 @@
 <!-- jQuery -->
 <script src="js/jquery.min.js"></script>
 <link rel="stylesheet" href="js/jquery-ui.css" />
+<link rel="stylesheet" href="js/jquery.ui.theme.css" />
 <script src="js/jquery-ui.min.js"></script>
 
 <!-- jQuery scrollbar -->
@@ -17,7 +18,7 @@
 		$(document).ready(function(){
 			$("#chat").mCustomScrollbar();
 			
-			//$("#stats,#inventory,#turn_order").draggable({ handle: '.header' });
+			$("#stats,#inventory,#turn_order,#tilesPane").draggable({ handle: '.header' });
 			$("#viewport *").on('mousemove', function(e){
 				e.originalEvent.preventDefault();
 			});
@@ -60,7 +61,7 @@
 	<a href="#" class="btn-icon turn-order"></a>
 	&nbsp;&nbsp;
 	<a id="IcoModeTile" href="javascript:GUI.toolbar.modeTile()" class="btn-icon tiles"></a>
-	<a id="IcoModeObject" href="javascript:GUI.toolbar.modeObject()" class="btn-icon objects"></a>
+	<a id="IcoModeScenery" href="javascript:GUI.toolbar.modeScenery()" class="btn-icon objects"></a>
 	<a id="IcoModeActor" href="javascript:GUI.toolbar.modeActor()" class="btn-icon actors"></a>
 
 	<div id="pane_viewport" >
@@ -69,8 +70,8 @@
 		<div id="roll_request" style="display:none">
 			<div class="header">ROLL REQUEST</div>
 			<div class="content">
-				<span class="roll">1d20 + 5</span>
-				<span class="description">Perception</span>
+				<span class="roll"></span>
+				<span class="description"></span>
 				<a href="javascript:GUI.rollRequestDialog.roll()">Roll</a>
 			</div>
 		</div>
@@ -91,6 +92,35 @@
 		</div>
 	</div>
 </div> <!-- /column -->
+
+	<div id="stats" style="width: 250px; height: 200px;">
+		<div class="header">STATS</div>
+		<div class="content" >
+			Alexander<br>
+			HP 32/32<br>
+			STR 41<br>
+			ETC<br>
+		</div>
+	</div>
+	
+	<div id="inventory" style="width: 250px; height: 200px;">
+		<div class="header">INVENTORY</div>
+		<div class="content">
+			<ul>
+				<li><span class="count">2</span> Sasusages</li>
+
+			</ul>
+		</div>
+	</div>
+	
+	<div id="turn_order" style="width: 250px; height: 200px;">
+		<div class="header">PLAYER LIST</div>
+		<div class="content">
+			<ul>
+				<li><span class="istyping yes"></span><span class="isturn"></span> Gregor</li>
+			</ul>
+		</div>
+	</div>
 
 <a href="logout">Logout</a>
 
@@ -184,7 +214,10 @@ function AJAXsend(txt) {
 <style type="text/css">
 .mouse{width:10px; height:10px; background: #fff;position: absolute;}
 </style>
-<div id="tilesPane"></div>
+<div id="tilesPane" style="display: none;">
+	<div class="header">TILESETS</div>
+	<div class="content"></div>
+</div>
 </body>
 
 </html>

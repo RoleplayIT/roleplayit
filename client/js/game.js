@@ -32,13 +32,15 @@ var Mouse = {
 			case 'tile':
 				this.mode = 'tile';
 				Crafty('iso_cursor').visible = true;
+				Game._useFoVbak = Game.useFoV;
 				Game.useFoV = false;
 				drawMap();
 				break;
 			case 'actor':
 				this.mode = 'actor';
 				Crafty('Actor').each(function() { this.addComponent('Mouse'); });
-				Game.useFoV = true;
+				if (Game._useFoVbak) Game.useFoV = true;
+				//Game.useFoV = true;
 				drawMap();
 				//if (player) player.ref.addComponent("Isoway");
 				break;
@@ -103,6 +105,8 @@ function drawMap() {
 	
 // Update Field of View ///////////////////////////////////////////////////
 function updateFoV() {
+	if (!Game.currentActor) return;
+
 	// TODO use associated actor
 	var coords = {x: Game.actors[Game.currentActor].x, y: Game.actors[Game.currentActor].y};
 	var sight = Shadowcast.calcFoV(Game.map, coords.x, coords.y, Game.sightRadius);
@@ -258,7 +262,7 @@ $(document).ready(function() {
 	// Keyboard movement //////////////////////////////////////////////////////
 	Crafty.c("Isoway", {
 		_active: 1,
-		_direction: 0, // 0 - 7 
+		//_direction: this.direction || 0, // 0 - 7 
 		_lastMove: 0,
 		_moveMatrix: [ [0,-1], [1,-1], [1,0], [1,1], [0,1], [-1,1], [-1,0], [-1,-1] ],
 		
@@ -362,7 +366,7 @@ $(document).ready(function() {
 		
 		//if ( Game.map.tilemap[x][y] === 0 ) return false; // TODO replace with check with passable flag
 		//if ( TileFlags[Game.map.tilemap[x][y]] & TileFlag.Impassable ) return false;
-		if ( Game.map.canWalk({x:x, y:y}) ) return false;
+		if ( !Game.map.canWalk({x:x, y:y}) ) return false;
 		//if ( Game.map.tilemap[x][y] === 0 ) return false; // TODO replace with check with passable flag
 		
 		return true;
@@ -416,8 +420,8 @@ $(document).ready(function() {
 	}
 	
 	// Trees //////////////////////////////////////////////////////////////////
-	iso.place(Crafty.e("2D, DOM, tree"), 13, 5, 1);
-	iso.place(Crafty.e("2D, DOM, tree"), 5, 9, 1);
+	//iso.place(Crafty.e("2D, DOM, tree"), 13, 5, 1);
+	//iso.place(Crafty.e("2D, DOM, tree"), 5, 9, 1);
 	// ---
 	
 	// Mouse panning //////////////////////////////////////////////////////////
@@ -439,7 +443,7 @@ $(document).ready(function() {
 		});
 	});
 	
-	//ajax_getMap();
+	
 	io.emit('map:get');
 	
 	$(".DOM").css({
@@ -449,7 +453,7 @@ $(document).ready(function() {
 		'-o-user-select':'none',
 		'-ms-user-select':'none'
 	});
-	//Crafty.e("2D, DOM, Text").attr({ x: 100, y: 100}).text("Look at me!!").attr("z",1000);
+	
 	
 	// Mouse Zoom /////////////////////////////////////////////////////////////
 	// Implement event chain for mousewheel
@@ -521,7 +525,7 @@ $(document).ready(function() {
 		// unwrap data
 		Game.userID = data.userID;
 		Game.currentActor = data.currentActor;
-		console.log(data);
+		//console.log(data);
 		loadTilesets(data.tilesets);
 		Tilesets = data.tilesets;
 		TileFlag  = data.tileFlag;
@@ -565,6 +569,7 @@ $(document).ready(function() {
 			entity._id = actors[i].id;
 			entity._direction = actors[i].angle;
 			entity.sprite(actors[i].angle/2, 0);
+			// actor name label
 			var name_label = Crafty.e("2D, DOM, Text").text(actors[i].name).textColor('#FFFFFF').attr({ x: -5, y: -15 }).unselectable();
 			name_label.z = 9000;
 			entity.attach(name_label);

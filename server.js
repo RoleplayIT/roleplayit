@@ -80,7 +80,11 @@ app.get('/', function(req, res, next){
 	if(req.session.username) {
 		//res.send('welcome ' + req.session.username + ' Click to <a href="/forget">forget</a>!.');
 		//res.sendfile(__dirname + '/client.html');
-		res.sendfile(__dirname + '/client/client-player.html');
+		if (req.session.accessLevel == 1)
+			res.sendfile(__dirname + '/client/client-dm.html');
+		else
+			res.sendfile(__dirname + '/client/client-player.html');
+
 		// TODO check accesslevel to show proper page
 	} else {
 		res.send('<form method="post">'
