@@ -3389,7 +3389,7 @@ Crafty.c("DOM", {
 		}
 
 		//utilize CSS3 if supported
-		if (false /*Crafty.support.css3dtransform*/) { // Alan: css transorms seems to slow hings down on firefox
+		if (false /*Crafty.support.css3dtransform*/) { // Alan: css transorms seems to slow things down on firefox
 			trans.push("translate3d(" + (~~this._x) + "px," + (~~this._y) + "px,0)");
 		} else {
 			if (this._cssStyles.left !== this._x) {
@@ -5066,7 +5066,7 @@ Crafty.extend({
          * ~~~
          */
         scale: (function () {
-            var prop = Crafty.support.prefix + "Transform",
+            var prop = Crafty.support.prefix + "transform",
                 act = {};
             return function (amt) {
                 var bounds = this.bounds || Crafty.map.boundaries(),

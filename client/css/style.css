@@ -29,7 +29,23 @@ body{ background: #000; color: #ddd; font-family: Tahoma, Arial, sans-serif;}
 
 
 #pane_viewport { position:relative; border: 5px solid #667; }
-.DOM { image-rendering:optimizeSpeed; image-rendering:-moz-crisp-edges; image-rendering:-o-crisp-edges; image-rendering:-webkit-optimize-contrast; image-rendering:optimize-contrast;-ms-interpolation-mode:nearest-neighbor; }
+#pane_viewport {
+	image-rendering:optimizeSpeed;
+	image-rendering:-moz-crisp-edges;
+	image-rendering:-o-crisp-edges;
+	image-rendering:-webkit-optimize-contrast;
+	image-rendering:optimize-contrast;
+	image-rendering:pixelated;
+	-ms-interpolation-mode:nearest-neighbor;
+}
+#pane_viewport { 
+		-moz-user-select: none;
+		-webkit-user-select: none;
+		user-select: none;
+		-o-user-select: none;
+		-ms-user-select: none;
+		cursor: default;
+}
 /* speech bubble */
 .chat { color: #000; background: #fff; font-family:Arial; width: 100px; font-size:10px; padding:5px; position:absolute; top:-40px;left:-150%; display:none;z-index:1001; border-radius:5px; border: 1px solid #ddd; }
 

@@ -74,7 +74,7 @@ var fs = require('fs'),
 			actor.y = y;
 		}
 		if (typeof angle != 'undefined') actor.angle = angle;
-		if (typeof map  != 'undefined') actor.angle = map;
+		if (typeof map  != 'undefined') actor.map = map;
 	}
 
 	/**

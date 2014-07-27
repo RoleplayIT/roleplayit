@@ -89,8 +89,8 @@ Crafty.extend({
         },
         centerAt:function(x,y){
             var pos = this.pos2px(x,y);
-            Crafty.viewport.x = -pos.left+Crafty.viewport.width/2-this._tile.width;
-            Crafty.viewport.y = -pos.top+Crafty.viewport.height/2;
+            Crafty.viewport.x = -pos.left*Crafty.viewport._zoom+Crafty.viewport.width/2;
+            Crafty.viewport.y = -pos.top*Crafty.viewport._zoom+Crafty.viewport.height/2+this._tile.height*Crafty.viewport._zoom;
         
         },
         area:function(offset){

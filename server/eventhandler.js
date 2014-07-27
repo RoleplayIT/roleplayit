@@ -92,8 +92,9 @@ module.exports = (function(io) {
 	})
 
 	io.route('map:get', function(req) {
+		// TODO get... what map to get ?
 		console.log('map:get');
-		req.io.emit('map:load', Maps.getMaps()[0]);
+		req.io.emit('map:load', Maps.getMaps()[1]);
 	})
 
 	io.route('say', function(req) {
@@ -164,7 +165,7 @@ module.exports = (function(io) {
 				io.broadcast('map:update', data);
 				*/
 				// TODO broadcast only to those in the current map
-				io.broadcast('map:update', Maps.getMaps()[0]);
+				io.broadcast('map:update', map);
 
 			}
 		}

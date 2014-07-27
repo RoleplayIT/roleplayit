@@ -1,10 +1,10 @@
 [
 	{
 		"id": 1,
-		"name": "Provus",
+		"name": "Mage",
 		"body": 1,
 		"owner": "p1",
-		"map": 1,
+		"map": 2,
 		"x": 4,
 		"y": 10,
 		"angle": 4,
@@ -20,5 +20,16 @@
 		"y": 8,
 		"angle": 0,
 		"body": "dwarf"
+	},
+	{
+		"id": 3,
+		"name": "Jumbo",
+		"body": 3,
+		"owner": "p3",
+		"map": 1,
+		"x": 8,
+		"y": 8,
+		"angle": 0,
+		"body": "mage2"
 	}
 ]
