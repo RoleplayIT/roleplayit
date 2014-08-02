@@ -55,6 +55,8 @@ var fs = require('fs'),
 			name: "New map",
 			width:  15,
 			height: 15,
+			tileset: "default",
+			viewMode: "isometric",
 			tilemap: null 
 		};
 		var map = _.defaults(defaults, args);
@@ -106,14 +108,6 @@ var fs = require('fs'),
 		else { // single tile
 			map.tilemap[layer][x][y] = tileId;
 		}
-		/*
-			tile { map, tiledId, x, y}
-
-			or 
-
-			segment {x,y, width, height, tiledata[]}
-		*/
-
 	}
 
 

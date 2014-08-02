@@ -6,10 +6,70 @@ var Game = {
 	objects:  [],
 	userID: 0,
 	currentActor: 0,
+	cursor: null,
+	
 	sightRadius: 8,
 	useFoV: true,
-	fogOfWar: true
+	fogOfWar: true,
+	viewMode: 'isometric',	// isometric - orthogonal
+
+	setViewMode: function(mode){
+		//if (mode==this.viewMode) return;
+		if (mode=='isometric') this.viewMode = mode;
+		else if (mode=='orthogonal') this.viewMode = mode;
+
+		// TODO
+		// check if the tileset allows for it
+		var tileset = _.findWhere(Tilesets, {id: this.map.tileset});
+		if  (tileset[mode]) {
+			loadTileset(tileset, mode);
+			// reset viewport
+			//Game.viewport = ...
+			var gw = (Array.isArray(tileset[mode]) ? tileset[mode].baseSize[0] : tileset[mode].baseSize );
+			var gh = (Array.isArray(tileset[mode]) ? tileset[mode].baseSize[1] : (mode=='isometric' ? tileset[mode].baseSize/2 : tileset[mode].baseSize) );
+			if (mode == 'isometric') this.viewport = Crafty.diamondIso.init(gw,gh,15,15);
+			if (mode == 'orthogonal') this.viewport = Crafty.orthogonal.init(gw,gh);
+
+			// cursor
+			this.cursor.destroy();
+			if (mode == 'isometric') Crafty.sprite(48,'images/iso_cursor.png', { game_cursor: [0,0] });
+			if (mode == 'orthogonal') Crafty.sprite(24,'images/2d-cursor.png', { game_cursor: [0,0] });
+			this.cursor = Crafty.e("2D, DOM, game_cursor");
+			if (Mouse.mode=='actor') this.cursor.visible = false;
+	
+
+			this.map.wipeCraftyEntities();
+
+			// cursor
+
+
+			// reposition actors
+			_.each(Game.actors, function(myActor){
+
+				if (myActor.ref) Game.viewport.place(myActor.ref, myActor.x, myActor.y, 2);
+			
+			});
+
+
+			// drawpmap
+			drawMap();
+
+			if (this.currentActor>0) Game.viewport.centerAt(Game.actors[this.currentActor].x,Game.actors[this.currentActor].y)
+
+			// update GUI
+			$('#IcoViewMode').removeClass('viewiso view2d').addClass(mode=='isometric' ? 'viewiso' : 'view2d' );
+		}
+	}
 }
+
+var chrome_crash = false;
+/*
+	Game.init()
+
+	Game.initViewport()
+	Game.setViewMode
+	
+*/
 
 var Mouse = {
 	tx: 0,
@@ -20,7 +80,8 @@ var Mouse = {
 	layer: 0,
 	setMode: function(mode) {
 		Crafty('Actor').each(function() { this.removeComponent('Mouse'); });
-		Crafty('iso_cursor').visible = false;
+		Crafty('game_cursor').visible = false;
+		//Game.cursor.destroy();
 
 		/*
 		if (Game.currentActor>0) {
@@ -31,7 +92,8 @@ var Mouse = {
 		switch(mode) {
 			case 'tile':
 				this.mode = 'tile';
-				Crafty('iso_cursor').visible = true;
+				Crafty('game_cursor').visible = true;
+				//Game.cursor = Crafty.e("2D, DOM, game_cursor");
 				Game._useFoVbak = Game.useFoV;
 				Game.useFoV = false;
 				drawMap();
@@ -54,6 +116,7 @@ var Bodysets;
 
 // Draw map ///////////////////////////////////////////////////////////////
 function drawMap() {
+	chrome_crash = true;
 	var map = Game.map;
 	if (!map) return;
 
@@ -91,7 +154,7 @@ function drawMap() {
 				else // no, place a new one
 				{
 					if (!visible) continue;
-					//console.log('createTile');
+
 					var entity = Crafty.e("2D, DOM, tile" + tile);
 					Game.map.tilemap_e[layer][i][j] = entity; // store reference to crafty entity
 					
@@ -114,6 +177,8 @@ function drawMap() {
 		});
 		//console.log(actor, map.fov[actor.x][actor.y]);
 	});
+
+	chrome_crash = false;
 }
 	
 // Update Field of View ///////////////////////////////////////////////////
@@ -145,30 +210,73 @@ function updateFoV() {
 	drawMap();
 }
 
+function loadTileset(tileset, mode) {
+	if (typeof tileset == 'string') tileset = _.findWhere(Tilesets, {id: map.tileset});
+	if (!tileset) console.error('Invalid tileset');
+
+	var i = 0;
+	var groups = tileset.groups;
+	var max = groups.length;
+	var viewMode = mode || tileset.viewMode;
+	while(i<max) {
+		var group = groups[i];
+		var gid = group.firstgid;
+		var image = group[viewMode].image;
+		var width = group[viewMode].cols;
+		var height = group[viewMode].rows;
+		var tileSize = group[viewMode].tileSize;
+
+		var tiles = {};
+		for (y=0;y<height;y++) {
+			for (x=0;x<width;x++) {
+				tiles["tile"+(gid++)] = [x,y];
+			}
+		}
+		i++;
+
+		//console.log(tileSize, image, tiles);
+		if (Array.isArray(tileSize)) Crafty.sprite(tileSize[0], tileSize[1], image, tiles);
+		else Crafty.sprite(tileSize, image, tiles);
+	}
+}
+
+function loadBodysets(bodysets) {
+	_.each(bodysets, function(body, index){
+		var spriteMap = {};
+		spriteMap[index] = [0,0];
+
+		if (Array.isArray(body.tileSize)) Crafty.sprite(body.tileSize[0], body.tileSize[1], body.image, spriteMap);
+		else Crafty.sprite(body.tileSize, body.image, spriteMap);
+	});
+}
+
 $(document).ready(function() {
 	
 	
 	// Importing assets ///////////////////////////////////////////////////////
-
 	Crafty.sprite(48,'images/iso_cursor.png', {
-		iso_cursor: [0,0]
+		game_cursor: [0,0]
+	});
+/*
+	Crafty.sprite(24,'images/2d-cursor.png', {
+		game_cursor: [0,0]
 	});
 	
-
-	
+*/	
 	// Initialize viewport ////////////////////////////////////////////////////
-	Crafty.init(640,400);
+	Crafty.init();
 	Crafty.background("#111");
 	Crafty.viewport.init(640,400);
 	Crafty.viewport.scale(1);
 	//Crafty.canvas.init(); 
-	Game.viewport = iso = Crafty.diamondIso.init(48,24,15,15);
-
+	Game.viewport = Crafty.diamondIso.init(48,24,15,15);
+	//Game.viewport = Crafty.orthogonal.init(24,24);
 	
 	
 	
 	// Load map from server
 	io.on('map:update', function(data) {
+		if (data.id != Game.map.id) return;
 		
 		// find and delete stuff that has been changed
 		for(layer=0;layer<Game.map.tilemap.length;layer++) {
@@ -189,6 +297,7 @@ $(document).ready(function() {
 			} // i
 		} // layer
 		Game.map.tilemap = data.tilemap;
+
 		if (Game.useFoV) updateFoV();
 		
 		drawMap();
@@ -201,14 +310,19 @@ $(document).ready(function() {
 		}
 
 		// Create map object
-		var map = new Map(data.width, data.height);
-		map.id = data.id;
-		map.name = data.name;
-		map.width = data.width;
-		map.height = data.height;
-		map.tilemap = data.tilemap;
+		var map = new Map({
+			id: data.id,
+			name: data.name,
+			width: data.width,
+			height: data.height,
+			tilemap: data.tilemap,
+			tileset: data.tileset,
+			viewMode: data.viewMode
+		});
 		
 		Game.map = map;
+		
+		Game.setViewMode(Game.map.viewMode);
 
 		if (Game.useFoV) updateFoV();
 		
@@ -236,11 +350,12 @@ $(document).ready(function() {
 	// Iso cursor ////////////////////////////////////////////////////////////
 	{
 	//*/
-	var iso_cursor = Crafty.e("2D, DOM, iso_cursor");
+	Game.cursor = Crafty.e("2D, DOM, game_cursor");
 	
 
 	Crafty.addEvent(this, Crafty.stage.elem, "mousemove", function(e) {
-		var gc = iso.px2pos(  Crafty.mousePos.x,  Crafty.mousePos.y );
+		var gc = Game.viewport.px2pos( Crafty.mousePos.x,  Crafty.mousePos.y );
+
 		if (gc.x != Mouse.tx || gc.y != Mouse.ty) {
 			Mouse.tx = gc.x;
 			Mouse.ty = gc.y;
@@ -250,11 +365,13 @@ $(document).ready(function() {
 		function onTileOver(x, y) {
 			if (Mouse.mode!='tile') return;
 
-			iso.place(iso_cursor, x, y, 1000);
+			Game.viewport.place(Game.cursor, x, y, 1000);
 			if (Mouse.button === 0) io.emit('map:draw', { map: Game.map.id, tileId: Mouse.tileId, layer: Mouse.layer, x: gc.x, y: gc.y });
 		}
 
 	});
+
+
 	//*
 	
 	Crafty.addEvent(this, Crafty.stage.elem, "mousedown", function(e) {
@@ -262,7 +379,7 @@ $(document).ready(function() {
 		
 		if (Mouse.mode!='tile') return;
 		if (Mouse.button === 0) io.emit('map:draw', { map: Game.map.id, tileId: Mouse.tileId, layer: Mouse.layer, x: Mouse.tx, y: Mouse.ty });
-		if (Mouse.button === 2) Mouse.tileId = Game.map.tilemap[Mouse.layer][Mouse.tx][Mouse.ty];
+		if (Mouse.button === 2) Mouse.tileId = Game.map.tilemap[Mouse.layer][Mouse.tx][Mouse.ty] || 0;
 		
 	});
 	
@@ -297,16 +414,6 @@ $(document).ready(function() {
 	//Crafty.viewport.mouselook(true);
 	
 	io.emit('map:get');
-
-	/*
-	$(".DOM").css({
-		'-moz-user-select':'none',
-		'-webkit-user-select':'none',
-		'user-select':'none',
-		'-o-user-select':'none',
-		'-ms-user-select':'none'
-	});
-	*/
 
 	// Mouse Zoom /////////////////////////////////////////////////////////////
 	// Implement event chain for mousewheel
@@ -347,49 +454,19 @@ $(document).ready(function() {
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-	function loadTilesets(tilesets) {
-		var i = 0;
-		var max = tilesets.length;
-		while(i<max) {
-			var tileset = tilesets[i];
-			var gid = tileset.firstgid;
-			var width = tileset.cols;
-			var height = tileset.rows;
-			
-			var tiles = {};
-			for (y=0;y<height;y++) {
-				for (x=0;x<width;x++) {
-					tiles["tile"+(gid++)] = [x,y];
-				}
-			}
-			i++;
-			if (Array.isArray(tileset.tileSize)) Crafty.sprite(tileset.tileSize[0], tileset.tileSize[1], tileset.image, tiles);
-			else Crafty.sprite(tileset.tileSize, tileset.image, tiles);
-		}
-	}
-
-	function loadBodysets(bodysets) {
-		_.each(bodysets, function(body, index){
-			var spriteMap = {};
-			spriteMap[index] = [0,0];
-
-			if (Array.isArray(body.tileSize)) Crafty.sprite(body.tileSize[0], body.tileSize[1], body.image, spriteMap);
-			else Crafty.sprite(body.tileSize, body.image, spriteMap);
-		});
-	}
 
 	io.on('sync', function(data) {
 		// unwrap data
 		Game.userID = data.userID;
 		Game.currentActor = data.currentActor;
 		//console.log(data);
-		loadTilesets(data.tilesets);
 		Tilesets = data.tilesets;
 		TileFlag  = data.tileFlag;
 		TileFlags = data.tileFlags;
 		loadBodysets(data.bodysets);
 		Bodysets  = data.bodysets;
 
+		loadTileset(Tilesets[0], 'isometric');  //FIXME
 							
 		var actors = data.actors;
 		for(var i=0;i<actors.length;i++) {
@@ -401,9 +478,9 @@ $(document).ready(function() {
 			entity.addComponent(actors[i].body);
 			entity._id = actors[i].id;
 			entity._direction = actors[i].angle;
-			entity.sprite(actors[i].angle/2, 0);
+			entity.sprite(actors[i].angle/2, 0); // FIXME
 			// actor name label
-			var name_label = Crafty.e("2D, DOM, Text").text(actors[i].name).textColor('#FFFFFF').attr({ x: -5, y: -15 }).unselectable();
+			var name_label = Crafty.e("2D, DOM, Text, TextBorder").text(actors[i].name).textColor('#FFFFFF').attr({ x: entity._w-actors[i].name.length*6, y: -15 }).unselectable();
 			name_label.z = 9000;
 			entity.attach(name_label);
 			myActor.ref = entity;
@@ -412,6 +489,7 @@ $(document).ready(function() {
 		}
 
 		// player actor
+
 		if (Game.currentActor>0) {
 			var player = Game.actors[Game.currentActor];
 			if (player) player.ref.addComponent("Isoway");

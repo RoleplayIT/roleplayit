@@ -6,7 +6,7 @@ var fs = require('fs'),
 	var _tilesets = [];
 	var Tilesets = {
 		//Tiles: [],
-		TileFlags: [3],
+		Tileset: {}, // hashmap
 		TileFlag: {
 				Impassable: 0x01,
 				BlockLOS: 0x02
@@ -41,13 +41,17 @@ var fs = require('fs'),
 
 	function extrapolateTilesets() {
 		var count = _tilesets.length;
-		for (i=0;i<count;i++) {
+		for (var i=0;i<count;i++) {
 			var ts =_tilesets[i];
-			var gid = ts.firstgid;
-			var flags = ts.flags;
-			for (j=0;j<flags.length;j++) {
-				//Tilesets.Tiles
-				Tilesets.TileFlags[gid++] = flags[j];
+			Tilesets.Tileset[ts.id] = { TileFlags: [3] };
+			for (var j=0;j<ts.groups.length;j++) {
+				var group = ts.groups[j];
+				var gid = group.firstgid;
+				var flags = group.flags;
+				for (var k=0;k<flags.length;k++) {
+					//Tilesets.Tiles
+					Tilesets.Tileset[ts.id].TileFlags[gid++] = flags[k];
+				}
 			}
 		}
 	}

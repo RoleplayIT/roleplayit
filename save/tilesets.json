@@ -1,30 +1,85 @@
 [
 	{
-		"firstgid": 1,
-		"name": "floors",
-		"image": "images/iso-floors.png",
-		"tileSize": 48,
-		"cols": 5,
-		"rows": 3,
-		"flags": [0,0,0,0,0,0,0,0,0,0,1,0,0,0,0]
+		"id": "default",
+		"name": "Default (iso+topdown)",
+		"viewMode": "isometric",
+		"isometric": {
+			"baseSize": 48
+			},
+		"orthogonal": {
+			"baseSize": 24
+			},
+		"groups": [
+			{
+				"firstgid": 1,
+				"name": "floors",
+				"isometric": {
+						"image": "images/iso-floors.png",
+						"tileSize": 48,
+						"cols": 5,
+						"rows": 3
+					},
+				"orthogonal": {
+						"image": "images/2d-floors.png",
+						"tileSize": 24,
+						"cols": 5,
+						"rows": 3
+					},
+				"flags": [0,0,0,0,0,0,0,0,0,0,1,0,0,0,0]
+			},
+			{
+				"firstgid": 16,
+				"name": "walls",
+				"isometric": {
+						"image": "images/iso-walls.png",
+						"tileSize":  48,
+						"cols": 4,
+						"rows": 1
+					},
+				"orthogonal": {
+						"image": "images/2d-walls.png",
+						"tileSize": 24,
+						"cols": 4,
+						"rows": 1
+					},	
+				"flags": [3,3,3,3]
+			},
+			{
+				"firstgid": 64,
+				"name": "scenery",
+				"isometric": {
+						"image": "images/iso-objects.png",
+						"tileSize":  [48,72],
+						"cols": 6,
+						"rows": 2
+					},
+				"orthogonal": {
+						"image": "images/2d-objects.png",
+						"tileSize": 24,
+						"cols": 6,
+						"rows": 2
+					},	
+				"flags": [0,1,1,1,3,1,1,1,1,0,0,0]
+			}
+		]
 	},
 	{
-		"firstgid": 16,
-		"name": "walls",
-		"image": "images/iso-walls.png",
-		"tileSize":  48,
-		"cols": 4,
-		"rows": 1,
-		"flags": [3,3,3,3]
-	},
-	{
-		"firstgid": 64,
-		"name": "scenery",
-		"image": "images/iso-objects.png",
-		"tileSize":  [48,72],
-		"cols": 6,
-		"rows": 2,
-		"flags": [0,1,1,1,3,1,1,1,1,0,0,0]
+		"id": "topdown",
+		"name": "Test topdown",
+		"viewMode": "orthogonal",
+		"orthogonal": { "baseSize": 24 },
+		"groups": [
+			{
+				"firstgid": 1,
+				"name": "Dungeon",
+				"orthogonal": {
+					"image": "images/topdown.png",
+					"tileSize": 24,
+					"cols": 16,
+					"rows": 9
+				},
+				"flags": [0,0,0,0,0,0,0,0,0,0,1,0,0,0,0]
+			}
+		]
 	}
-	
 ]

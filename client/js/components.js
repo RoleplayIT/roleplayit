@@ -105,7 +105,7 @@ Crafty.c("Isoway", {
 			/* Steering wheel movement
 			// forward
 			if(this.isDown(Crafty.keys.UP_ARROW)) {
-				//iso.place(this, pos.x + this._moveMatrix[this._direction][0], pos.y + this._moveMatrix[this._direction][1], 2);
+				//Game.viewport.place(this, pos.x + this._moveMatrix[this._direction][0], pos.y + this._moveMatrix[this._direction][1], 2);
 				newPos = {
 					x: actor.x + this._moveMatrix[this._direction][0],
 					y: actor.y + this._moveMatrix[this._direction][1]
@@ -115,7 +115,7 @@ Crafty.c("Isoway", {
 			
 			// backward
 			if(this.isDown(Crafty.keys.DOWN_ARROW)) {
-				//iso.place(this, pos.x - this._moveMatrix[this._direction][0], pos.y - this._moveMatrix[this._direction][1], 2);
+				//Game.viewport.place(this, pos.x - this._moveMatrix[this._direction][0], pos.y - this._moveMatrix[this._direction][1], 2);
 				newPos = {
 					x: actor.x - this._moveMatrix[this._direction][0],
 					y: actor.y - this._moveMatrix[this._direction][1]
@@ -137,8 +137,8 @@ Crafty.c("Isoway", {
 				actor.x = newPos.x;
 				actor.y = newPos.y;
 			}
-			
-			iso.place(this, actor.x , actor.y, 2);
+
+			Game.viewport.place(this, actor.x, actor.y, 2);
 			
 			// Send the event to the server
 			Sender.move(this._id, actor.x, actor.y, this._direction);

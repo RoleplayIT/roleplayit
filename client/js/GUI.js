@@ -75,15 +75,17 @@ var GUI = {
 	tilesPane:
 	{
 		show: function() {
+			var tileset = _.findWhere(Tilesets, {id: Game.map.tileset});
+
 			var html_out = '<div id="tilesPaneTabs">';
 			var i = 0;
-			var max = Tilesets.length;
+			var max = tileset.groups.length;
 
 			// tabs
 			html_out += '<ul>';
 			while(i<max) {
-				var tileset = Tilesets[i];
-				var name = tileset.name;
+				var tileGroup = tileset.groups[i];
+				var name = tileGroup.name;
 
 				html_out += '<li><a href="#tilesPaneTab-' + i + '">' + name + '</a></li>';
 				i++;
@@ -92,21 +94,20 @@ var GUI = {
 			// actual tiles
 			i = 0;
 			while(i<max) {
-				var tileset = Tilesets[i];
-				var gid = tileset.firstgid;
-				var width = tileset.cols;
-				var height = tileset.rows;
-				var tileWidth  = Array.isArray(tileset.tileSize) ? tileset.tileSize[0] : tileset.tileSize;
-				var tileHeight = Array.isArray(tileset.tileSize) ? tileset.tileSize[1] : tileset.tileSize;
-
-
+				var tileGroup = tileset.groups[i];
+				var gid = tileGroup.firstgid;
+				var width = tileGroup[Game.viewMode].cols;
+				var height = tileGroup[Game.viewMode].rows;
+				var tileWidth  = Array.isArray(tileGroup[Game.viewMode].tileSize) ? tileGroup[Game.viewMode].tileSize[0] : tileGroup[Game.viewMode].tileSize;
+				var tileHeight = Array.isArray(tileGroup[Game.viewMode].tileSize) ? tileGroup[Game.viewMode].tileSize[1] : tileGroup[Game.viewMode].tileSize;
+				var image = tileGroup[Game.viewMode].image;
 				html_out += '<div id="tilesPaneTab-' + i + '">';
 
 
 				for (y=0;y<height;y++) {
 					for (x=0;x<width;x++) {
 						html_out += '<div style="float:left; width: ' + tileWidth + 'px; height: ' + tileHeight 
-							+ 'px; background: url(' + tileset.image + ') -' + (x*tileWidth) + 'px -' + (y*tileHeight)
+							+ 'px; background: url(' + image + ') -' + (x*tileWidth) + 'px -' + (y*tileHeight)
 							+ 'px;"  onclick="GUI.tilesPane.pick(' + (gid++) + ')"></div>';
 					}
 				}
@@ -152,6 +153,17 @@ var GUI = {
 			Mouse.setMode('tile');
 			Mouse.layer = 1;
 			GUI.tilesPane.show();
+		},
+		toggleViewMode: function() {
+			var tileset = _.findWhere(Tilesets, {id: Game.map.tileset});
+
+			if ( Game.viewMode == 'orthogonal' && tileset.isometric ) {
+				Game.setViewMode('isometric');
+			} else if ( Game.viewMode == 'isometric' && tileset.orthogonal ) {
+				Game.setViewMode('orthogonal');
+			}
+
+			GUI.tilesPane.close();
 		}
 	},
 

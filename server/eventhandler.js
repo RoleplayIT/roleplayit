@@ -51,7 +51,7 @@ module.exports = (function(io) {
 			console.log(data);
 		},
 		isTyping: function(req) {
-			io.broadcast('client:isTyping', req.data);	
+			io.broadcast('client:isTyping', req.data);
 		}
 	})
 
@@ -80,21 +80,16 @@ module.exports = (function(io) {
 		//console.log(req.session.accessLevel);
 		console.log('sync');
 		var actor = Actors.getByOwner(req.session.username);
+
 		req.io.emit('sync', {
 			userID: req.session.username,
-			currentActor: actor?actor.id:null,
+			currentActor: actor?actor.id : 0,
 			tilesets: Tilesets.getTilesets(),
 			tileFlag: Tilesets.TileFlag,
-			tileFlags: Tilesets.TileFlags,
+			tileFlags: Tilesets.Tileset,
 			bodysets: Bodysets.getBodysets(),
-			actors: Actors.getActors() // TODO send only those that can be seen
+			actors: _.where(Actors.getActors(), {map: (actor ? actor.map : 1) }) // TODO check current map for admins
 		});
-	})
-
-	io.route('map:get', function(req) {
-		// TODO get... what map to get ?
-		console.log('map:get');
-		req.io.emit('map:load', Maps.getMaps()[1]);
 	})
 
 	io.route('say', function(req) {
@@ -145,25 +140,37 @@ module.exports = (function(io) {
 	});
 	
 	io.route('map', {
+		get: function(req) {
+			var actor,map;
+			// TODO check current map for admins
+			if (checkAccessLevel(req, AccessLevel.Administrator)) {
+				map = Maps.getMaps()[0];
+			} else {
+				actor = Actors.getByOwner(req.session.username);
+				map = Maps.getById(actor.map);
+			}
+
+			if (!map) return;
+			
+			console.log('map:get');
+			req.io.emit('map:load', map);
+		},
+		set: function(req) {
+			if (checkAccessLevel(req, AccessLevel.Administrator)) { 
+				// TODO admins should be able to change at will 
+				//req.session.selectedMap = req.data.id;
+			} 
+		},
 		draw: function(req) {
 			//console.log('map:draw');
 			var map = Maps.getById(req.data.map);
 			if (map) {
 				var tile = req.data;
-				// Map.checkMovement(actor.map, to.x, to,y);
 				//if (checkAccessLevel(req, AccessLevel.Administrator)) {
 					Maps.draw(map, tile.tileId, tile.layer, tile.x, tile.y);
 
 				//}
-				/*
-				var data = {
-					map: tile.map, 
-					tileId: tile.tileId,
-					x: tile.x,
-					y: tile.y
-				}
-				io.broadcast('map:update', data);
-				*/
+
 				// TODO broadcast only to those in the current map
 				io.broadcast('map:update', map);
 
