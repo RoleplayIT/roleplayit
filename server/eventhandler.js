@@ -5,7 +5,8 @@ var crypto  = require('crypto'),
 	Maps    = require('./map'),
 	Tilesets= require('./tilesets'),
 	Bodysets= require('./bodysets'),
-	Users	= require('./users');
+	Users	= require('./users'),
+	Server	= global.Server;
 
 var AccessLevel = Users.AccessLevel;
 
@@ -15,6 +16,36 @@ module.exports = (function(io) {
 		return false;
 	}
 	
+	// Connection event
+	io.on('connection', function(socket) {
+		// check if the socket has been authorized
+		if (typeof socket.handshake.session.username == 'undefined') {
+			socket.emit('disconnect', 'unauthorized');
+			socket.disconnect();
+			return;
+		}
+
+		var address = socket.handshake.address;
+		var username = socket.handshake.session.username;
+
+		// kick out existing connections with the same user
+		if (Server.clients[username]) {
+			io.sockets.socket(Server.clients[username]).emit('disconnect', 'relogged');
+			io.sockets.socket(Server.clients[username]).disconnect();
+		}
+
+		// Show logins and disconnects
+		Server.onlineUsers++;
+		console.log('Client: ' + address.address + ': Connected. [' + Server.onlineUsers + ' Online] [' + username + ']');
+		Server.clients[username] = socket.id;
+		
+		socket.on('disconnect', function(req){
+			Server.onlineUsers--;
+			console.log('Client: ' + address.address + ': Disconnected. [' + Server.onlineUsers + ' Online] [' + username + ']');
+			delete Server.clients[username];
+		})
+	});
+
 	// Route bindings
 	io.route('actor', {
 		move: function(req) {

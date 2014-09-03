@@ -203,6 +203,20 @@ io.on('say', function(data){
 	GameEvents.say(data.id, data.name, data.text);
 });
 
+io.on('disconnect', function(data){
+	// TODO handle disconnections properly
+	console.log(data);
+	if (data=='unauthorized') {
+		// server forced a disconnection, go back to login
+		io.disconnect();
+		document.location.reload(true);
+	}
+	if (data=='relogged') {
+		alert('Your username has relogged from somewhere else');
+		io.disconnect();
+	}
+
+});
 
 
 function AJAXsend(txt) {

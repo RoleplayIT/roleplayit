@@ -3,11 +3,11 @@ var express  = require('express.io'),
 	fs       = require('fs'),
 	os       = require('os'),
 	crypto   = require('crypto'),
-	_        = require('underscore')
-	Actors	 = require('./server/actor');
-	Dice	 = require('./server/dice');
-	Users	 = require('./server/users');
-	Maps	 = require('./server/map');
+	_        = require('underscore'),
+	Actors	 = require('./server/actor'),
+	Dice	 = require('./server/dice'),
+	Users	 = require('./server/users'),
+	Maps	 = require('./server/map'),
 	Tilesets = require('./server/tilesets'),
 	Bodysets = require('./server/bodysets');
 
@@ -37,15 +37,23 @@ Array.prototype.findKey = function(key, value) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// Configuration
+// Server object
+Server = {
+	onlineUsers: 0,
+	clients: {}
+}
 
 /// Serialize app state
-app.save = function() {
-	
+Server.save = function() {
+	Users.serialize();
+	Tilesets.serialize();
+	Bodysets.serialize();
+	Maps.serialize();
+	Actors.serialize();	
 }
 
 // Deserialize app state
-app.load = function() {
+Server.load = function() {
 	Users.deserialize();
 	Tilesets.deserialize();
 	Bodysets.deserialize();
@@ -59,9 +67,13 @@ app.load = function() {
 	
 }
 
+Server.restart = function() {
+	// TODO
+}
+
 function initialize() {
 	// load data
-	app.load();
+	Server.load();
 
 	// app state
 	require('./server/eventhandler')(app.io);
@@ -74,8 +86,9 @@ function initialize() {
 // Initialize
 initialize();
 
-//app.save();
 
+///////////////////////////////////////////////////////////////////////////////
+// HTTP server
 app.get('/', function(req, res, next){   
 	if(req.session.username) {
 		//res.send('welcome ' + req.session.username + ' Click to <a href="/forget">forget</a>!.');
@@ -116,7 +129,7 @@ app.post('/', function(req, res){
 
 app.get('/logout', function(req, res, next){
 	req.session.destroy();
-  	res.redirect('back');
+	res.redirect('back');
 
 });
 
@@ -130,42 +143,25 @@ app.use('/images', express.static(__dirname + "/client/images", { maxAge: 3600 }
 app.use('/css',    express.static(__dirname + "/client/css"));
 app.listen(config.port);
 
+
 function writeAddresses() {
 	var interfaces = os.networkInterfaces();
 	for (k in interfaces) {
-	    for (k2 in interfaces[k]) {
-	        var address = interfaces[k][k2];
-	        //if (address.family == 'IPv4' && !address.internal) {
-	        if (address.family == 'IPv4') {
-	            console.log('Listening: ' + address.address + ':' + config.port)
-	        }
-	    }
+		for (k2 in interfaces[k]) {
+			var address = interfaces[k][k2];
+			//if (address.family == 'IPv4' && !address.internal) {
+			if (address.family == 'IPv4') {
+				console.log('Listening: ' + address.address + ':' + config.port)
+			}
+		}
 	}
 }
 writeAddresses();
 
-// Shows incoming and outcoming connections
-var onlineUsers = 0
-app.io.sockets.on('connection', function(req) {
-    onlineUsers++;
-    var address = req.handshake.address;
-	console.log('Client: ' + address.address + ': Connected. [' + onlineUsers + ' Online]');
-    
-    req.on('disconnect', function(req){
-        onlineUsers--;
-        console.log('Client: ' + address.address + ': Disconnected. [' + onlineUsers + ' Online]');
-    })
-})
 
-
-//actors.create();actors.create();actors.create();
-//console.dir(actors.getActors());
-var    repl = require("repl");
-
-
-
+var repl = require("repl");
 repl.start({
-  prompt: "> ",
-  input: process.stdin,
-  output: process.stdout
+	prompt: "> ",
+	input: process.stdin,
+	output: process.stdout
 });
