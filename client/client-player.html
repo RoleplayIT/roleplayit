@@ -18,7 +18,7 @@
 		$(document).ready(function(){
 			$("#chat").mCustomScrollbar();
 			
-			$("#stats,#inventory,#turn_order,#tilesPane").draggable({ handle: '.header' });
+			$("#stats,#inventory,#turn_order,#player_list,#tilesPane").draggable({ handle: '.header' });
 			
 		});
 			
@@ -86,7 +86,7 @@
 			<!--<p><span style="color: red;"> Gregor rolls Perception 14 + 11 = <b>25</b></span></p>-->
 		</div>
 		<div class="input-pane">
-			<form onsubmit="AJAXsend(input_chat.value);return false;" accept-charset="utf-8">
+			<form onsubmit="AJAXsend(input_chat.value);return false;" onkeypress="io.emit('client:isTyping')" accept-charset="utf-8">
 				<input type="text" name="input_chat" id="input_chat" />
 			</form>
 		</div>
@@ -114,16 +114,18 @@
 		</div>
 	</div>
 	
-	<div id="turn_order" style="width: 250px; height: 200px;">
+-->
+	<div id="player_list" style="width: 250px; height: 200px;">
 		<div class="header">PLAYER LIST</div>
 		<div class="content">
+		<!--
 			<ul>
 				<li><span class="istyping yes"></span><span class="isturn"></span> Gregor</li>
 			</ul>
+		-->
 		</div>
 	</div>
--->
-<a href="logout">Logout</a>
+<a href="logout" class="btn-icon logout"></a>
 
 <!--div id="console" style="height: 300px;overflow-y:auto">
 </div-->
@@ -208,8 +210,8 @@ io.on('disconnect', function(data){
 	console.log(data);
 	if (data=='unauthorized') {
 		// server forced a disconnection, go back to login
-		io.disconnect();
 		document.location.reload(true);
+		io.disconnect();
 	}
 	if (data=='relogged') {
 		alert('Your username has relogged from somewhere else');
@@ -218,6 +220,16 @@ io.on('disconnect', function(data){
 
 });
 
+io.on('playerlist', GUI.playerList.update);
+
+io.on('client:isTyping', function(data){
+	window._timeouts = window._timeouts || {};
+	$('#player_list li[data-user=' + data + '] .istyping').addClass('yes');
+	clearTimeout(_timeouts[data]);
+	window._timeouts[data] = setTimeout(function() {
+		$('#player_list li[data-user=' + data + '] .istyping').removeClass('yes');
+	}, 5000);
+});
 
 function AJAXsend(txt) {
 	document.getElementById('input_chat').value='';

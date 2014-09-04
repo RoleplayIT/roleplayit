@@ -185,5 +185,24 @@ var GUI = {
 			io.emit('dice:roll');
 			this.close();
 		}
+	},
+	playerList:
+	{
+		show: function() {
+			$("#player_list").show();
+		},
+		close: function() {
+			$("#player_list").hide();	
+		},
+		update: function(data) {
+			var container = $("#player_list .content");
+			var content  = "<ul>";
+			_.each(data, function(entry,key) {
+				content += '<li data-user="' + key + '"><span class="istyping"></span><span class="isturn"></span>' + entry.name + '</li>';
+			});
+			content += '<ul>';
+			container.html(content);
+		}
+
 	}
 }

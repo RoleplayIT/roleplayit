@@ -1,12 +1,13 @@
-var crypto  = require('crypto'),
-	_       = require('underscore'),
-	Actors	= require('./actor'),
-	Dice    = require('./dice'),
-	Maps    = require('./map'),
-	Tilesets= require('./tilesets'),
-	Bodysets= require('./bodysets'),
-	Users	= require('./users'),
-	Server	= global.Server;
+var crypto     = require('crypto'),
+	_          = require('underscore'),
+	Actors	   = require('./actor'),
+	Dice       = require('./dice'),
+	Maps       = require('./map'),
+	Tilesets   = require('./tilesets'),
+	Bodysets   = require('./bodysets'),
+	Users	   = require('./users'),
+	PlayerList = require('./playerlist'),
+	Server	   = global.Server;
 
 var AccessLevel = Users.AccessLevel;
 
@@ -38,11 +39,13 @@ module.exports = (function(io) {
 		Server.onlineUsers++;
 		console.log('Client: ' + address.address + ': Connected. [' + Server.onlineUsers + ' Online] [' + username + ']');
 		Server.clients[username] = socket.id;
+		PlayerList.add(username);
 		
 		socket.on('disconnect', function(req){
 			Server.onlineUsers--;
 			console.log('Client: ' + address.address + ': Disconnected. [' + Server.onlineUsers + ' Online] [' + username + ']');
 			delete Server.clients[username];
+			PlayerList.remove(username);
 		})
 	});
 
@@ -82,7 +85,7 @@ module.exports = (function(io) {
 			console.log(data);
 		},
 		isTyping: function(req) {
-			io.broadcast('client:isTyping', req.data);
+			io.broadcast('client:isTyping', req.session.username);
 		}
 	})
 

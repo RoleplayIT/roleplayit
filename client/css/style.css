@@ -25,6 +25,7 @@ body{ background: #000; color: #ddd; font-family: Tahoma, Arial, sans-serif;}
 .btn-icon.viewiso{ background-position: -256px 0;}
 .btn-icon.speak{ background-position: -288px 0;}
 .btn-icon.whisper{ background-position: -320px 0;}
+.btn-icon.logout{ background-position: -352px 0;}
 
 
 
@@ -62,7 +63,7 @@ body{ background: #000; color: #ddd; font-family: Tahoma, Arial, sans-serif;}
 #roll_request .description { color:#aaa; padding-right:5px; }
 #roll_request a { border:2px solid #c0c0c0; color:#fff; text-decoration: none; padding: 2px 6px; border-radius:5px; background: #30343e; }
 
-#stats ,#turn_order,#inventory, #tilesPane { min-width:120px; z-index:9999999; position:absolute;}
+#stats, #turn_order, #player_list, #inventory, #tilesPane { min-width:120px; z-index:9999999; position:absolute;}
 
 #stats { font-size: 14px; border: 1px solid #666; background: #000; top: 0; right:0;} 
 #stats .header { background: #666;  text-align: center; color: #000; }
@@ -76,6 +77,15 @@ body{ background: #000; color: #ddd; font-family: Tahoma, Arial, sans-serif;}
 #turn_order .istyping.yes { background-position: 0 0;}
 #turn_order .isturn.yes { background-position: -16px 0; }
 #turn_order .header { background: #666;  text-align: center; color: #000; }
+
+#player_list { font-size: 14px; border: 1px solid #666; background: #000; top: 400px; right:0;}
+#player_list ul { padding:0; margin: 0;}
+#player_list ul li { display:block; padding: 1px 10px 1px 0; }
+#player_list ul li:nth-child(even) { background:#111; }
+#player_list .istyping, #player_list .isturn { display:block; float:left; width: 16px; height:16px; background: url(gfx/small_icons.png) no-repeat; background-position: 16px 0; margin-right:5px;}
+#player_list .istyping.yes { background-position: 0 0;}
+#player_list .isturn.yes { background-position: -16px 0; }
+#player_list .header { background: #666;  text-align: center; color: #000; }
 
 #inventory { font-size: 14px; border: 1px solid #666; background: #000;  top: 200px; right:0;}
 #inventory ul { padding:0; margin: 0;}

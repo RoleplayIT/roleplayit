@@ -40,7 +40,8 @@ Array.prototype.findKey = function(key, value) {
 // Server object
 Server = {
 	onlineUsers: 0,
-	clients: {}
+	clients: {},
+	io: app.io
 }
 
 /// Serialize app state
@@ -65,6 +66,7 @@ Server.load = function() {
 	store.actors = Actors.getActors();
 	store.maps   = Maps.getMaps();
 	
+	// TODO force all clients to resync
 }
 
 Server.restart = function() {
@@ -142,7 +144,6 @@ app.use('/gfx',    express.static(__dirname + "/client/gfx", { maxAge: 3600 }));
 app.use('/images', express.static(__dirname + "/client/images", { maxAge: 3600 }));
 app.use('/css',    express.static(__dirname + "/client/css"));
 app.listen(config.port);
-
 
 function writeAddresses() {
 	var interfaces = os.networkInterfaces();
