@@ -34,7 +34,7 @@ var Game = {
 			this.cursor.destroy();
 			if (mode == 'isometric') Crafty.sprite(48,'images/iso_cursor.png', { game_cursor: [0,0] });
 			if (mode == 'orthogonal') Crafty.sprite(24,'images/2d-cursor.png', { game_cursor: [0,0] });
-			this.cursor = Crafty.e("2D, DOM, game_cursor");
+			this.cursor = Crafty.e("2D, DOM, Mouse, game_cursor");
 			if (Mouse.mode=='actor') this.cursor.visible = false;
 	
 
@@ -62,7 +62,6 @@ var Game = {
 	}
 }
 
-var chrome_crash = false;
 /*
 	Game.init()
 
@@ -116,7 +115,6 @@ var Bodysets;
 
 // Draw map ///////////////////////////////////////////////////////////////
 function drawMap() {
-	chrome_crash = true;
 	var map = Game.map;
 	if (!map) return;
 
@@ -178,7 +176,6 @@ function drawMap() {
 		//console.log(actor, map.fov[actor.x][actor.y]);
 	});
 
-	chrome_crash = false;
 }
 	
 // Update Field of View ///////////////////////////////////////////////////
@@ -350,7 +347,7 @@ $(document).ready(function() {
 	// Iso cursor ////////////////////////////////////////////////////////////
 	{
 	//*/
-	Game.cursor = Crafty.e("2D, DOM, game_cursor");
+	Game.cursor = Crafty.e("2D, DOM, Mouse, game_cursor");
 	
 
 	Crafty.addEvent(this, Crafty.stage.elem, "mousemove", function(e) {
@@ -493,6 +490,8 @@ $(document).ready(function() {
 		if (Game.currentActor>0) {
 			var player = Game.actors[Game.currentActor];
 			if (player) player.ref.addComponent("Isoway");
+
+			io.emit('actor:getProps');
 		}
 
 		Mouse.setMode('actor');

@@ -8,6 +8,7 @@
 <link rel="stylesheet" href="js/jquery-ui.css" />
 <link rel="stylesheet" href="js/jquery.ui.theme.css" />
 <script src="js/jquery-ui.min.js"></script>
+<script src="js/InputHistory.js"></script>
 
 <!-- jQuery scrollbar -->
 <link type="text/css" rel="stylesheet" href="js/jquery.mCustomScrollbar.css">
@@ -20,6 +21,9 @@
 			
 			$("#stats,#inventory,#turn_order,#player_list,#tilesPane").draggable({ handle: '.header' });
 			
+			// chat input
+			InputHistory('#input_chat', AJAXsend);
+			$('#input_chat').keypress(function(){ io.emit('client:isTyping'); })
 		});
 			
 	})(jQuery);
@@ -27,6 +31,7 @@
 
 <!-- underscore -->
 <script type="text/javascript" src="js/underscore-min.js"></script>
+
 
 <!-- Crafty JS -->
 <script type="text/javascript" src="js/crafty.js"></script>
@@ -86,24 +91,18 @@
 			<!--<p><span style="color: red;"> Gregor rolls Perception 14 + 11 = <b>25</b></span></p>-->
 		</div>
 		<div class="input-pane">
-			<form onsubmit="AJAXsend(input_chat.value);return false;" onkeypress="io.emit('client:isTyping')" accept-charset="utf-8">
-				<input type="text" name="input_chat" id="input_chat" />
-			</form>
+			<input type="text" name="input_chat" id="input_chat" />
 		</div>
 	</div>
 </div> <!-- /column -->
 
-<!--
 	<div id="stats" style="width: 250px; height: 200px;">
 		<div class="header">STATS</div>
 		<div class="content" >
-			Alexander<br>
-			HP 32/32<br>
-			STR 41<br>
-			ETC<br>
 		</div>
 	</div>
 	
+<!--
 	<div id="inventory" style="width: 250px; height: 200px;">
 		<div class="header">INVENTORY</div>
 		<div class="content">
@@ -113,16 +112,11 @@
 			</ul>
 		</div>
 	</div>
-	
 -->
+	
 	<div id="player_list" style="width: 250px; height: 200px;">
 		<div class="header">PLAYER LIST</div>
 		<div class="content">
-		<!--
-			<ul>
-				<li><span class="istyping yes"></span><span class="isturn"></span> Gregor</li>
-			</ul>
-		-->
 		</div>
 	</div>
 <a href="logout" class="btn-icon logout"></a>
@@ -199,9 +193,15 @@ function clamp(min,max, value) {
 io.on('actor:move', function(data){
 	GameEvents.move(data.id, data.x, data.y, data.angle);
 });
+io.on('actor:props', function(data){
+	if (typeof data == "string") {
+		$('#stats .content').html( data.replace(/\n/g,'<br>') );
+	}
+	// TODO json data case
+	// TODO output templates
+});
 
 io.on('say', function(data){
-	console.log(data);
 	GameEvents.say(data.id, data.name, data.text);
 });
 
@@ -233,7 +233,27 @@ io.on('client:isTyping', function(data){
 
 function AJAXsend(txt) {
 	document.getElementById('input_chat').value='';
-	io.emit('say', { text: txt });
+	if (txt=='') return;
+	if (txt[0]=='['){
+		// Command!
+		//var args = /(\w+)(?:\s+(\w+)(?:\s+(.+))?)?/.exec(txt);
+		var args = txt.substr(1).split(/\s+/);
+		var cmd = args[0];
+		args.splice(0,1);
+		switch (cmd) {
+			case 'reqroll': 
+				//console.log({user: args[0], dice: args[1], description: args.splice(2).join(' ')});
+				io.emit('dice:request', {user: args[0], dice: args[1], description: args.splice(2).join(' ')});
+				break;
+
+			case 'roll':
+				io.emit('dice:roll', { dice: args[0] });
+				break;
+		}
+
+	} else {
+		io.emit('say', { text: txt });
+	}
 }
 
 </script>

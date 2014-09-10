@@ -41,7 +41,9 @@ Array.prototype.findKey = function(key, value) {
 Server = {
 	onlineUsers: 0,
 	clients: {},
-	io: app.io
+	io: app.io,
+	paused: false,
+	turnMode: false
 }
 
 /// Serialize app state
@@ -77,7 +79,7 @@ function initialize() {
 	// load data
 	Server.load();
 
-	// app state
+	// set event bindings
 	require('./server/eventhandler')(app.io);
 
 	// what else

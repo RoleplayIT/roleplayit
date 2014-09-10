@@ -74,6 +74,17 @@ module.exports = (function(io) {
 		},
 		remove: function(req) {
 			io.broadcast('actor:remove', req.data);
+		},
+		getProps: function(req) {
+			var actor_id = req|0;
+			var actor = null;
+			if (checkAccessLevel(req, AccessLevel.Administrator)) {
+				actor = Actors.getById(actor.id);
+			} else {
+				actor = Actors.getByOwner(req.session.username);
+			}
+			if (actor && actor.props)
+				req.io.emit('actor:props', actor.props);
 		}
 	})
 
@@ -85,7 +96,7 @@ module.exports = (function(io) {
 			console.log(data);
 		},
 		isTyping: function(req) {
-			io.broadcast('client:isTyping', req.session.username);
+			req.io.broadcast('client:isTyping', req.session.username);
 		}
 	})
 
@@ -122,7 +133,7 @@ module.exports = (function(io) {
 			tileFlag: Tilesets.TileFlag,
 			tileFlags: Tilesets.Tileset,
 			bodysets: Bodysets.getBodysets(),
-			actors: _.where(Actors.getActors(), {map: (actor ? actor.map : 1) }) // TODO check current map for admins
+			actors: _.where(Actors.getActors(), {map: (actor ? actor.map : 4) }) // TODO check current map for admins
 		});
 	})
 
@@ -142,7 +153,7 @@ module.exports = (function(io) {
 	io.route('dice:roll', function(req) {
 		var username = req.session.username;
 
-		if (checkAccessLevel(req, AccessLevel.Administrator)) {
+		if (checkAccessLevel(req, AccessLevel.Administrator) && req.data) {
 			// admins roll what they want
 			io.broadcast('say', {
 				id: -1,
@@ -192,14 +203,19 @@ module.exports = (function(io) {
 		set: function(req) {
 			if (checkAccessLevel(req, AccessLevel.Administrator)) { 
 				// TODO admins should be able to change at will 
-				//req.session.selectedMap = req.data.id;
+				var map = Maps.getById(req.data.id);
+				if (map) {
+					req.session.selectedMap = req.data.id;
+					req.io.emit('map:load', map);
+				}
 			} 
 		},
 		draw: function(req) {
 			//console.log('map:draw');
 			var map = Maps.getById(req.data.map);
-			if (map) {
+			if (map && req.data) {
 				var tile = req.data;
+				if (tile.tileId==null || tile.layer ==null || tile.x==null || tile.y==null) return console.log('Error: map:draw missing data!');
 				//if (checkAccessLevel(req, AccessLevel.Administrator)) {
 					Maps.draw(map, tile.tileId, tile.layer, tile.x, tile.y);
 

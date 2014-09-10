@@ -19,11 +19,12 @@ var GUI = {
 
 			if (id > 0) {
 				var actor = Game.actors[id];
-				if (!actor) console.log("Say: id "+id + " is null.");
+				//if (!actor) console.log("Say: id "+id + " is null.");
 
 				var name;
-				if (!actor || actor.name == '') name = "Unknown#"+id;
-				else name = actor.name;
+				//if (!actor || actor.name == '') name = "Unknown#"+id;
+				//else name = actor.name;
+				name = ( actor ? actor.name : name ) || name || "Unknown#"+id;
 				
 				var color = GUI._nameColors[id % GUI._nameColors.length]; // randomized by id
 				

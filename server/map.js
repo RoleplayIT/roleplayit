@@ -98,7 +98,8 @@ var fs = require('fs'),
 	 */
 	Maps.draw = function(map, tileId, layer, x, y) {
 		// check for invalid coordinates
-		if (x<0 || x>= map.width || y<0 || y>= map.height ) return;
+		if (!map || x<0 || x>= map.width || y<0 || y>= map.height ) return;
+
 
 		// array of tiles
 		if (Array.isArray(tileId)) {
