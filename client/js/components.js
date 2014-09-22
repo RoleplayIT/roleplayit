@@ -53,7 +53,7 @@ Crafty.c("Isoway", {
 			if (!Crafty.selected) return;
 			if (Mouse.mode!='actor') return;
 
-			e.originalEvent.preventDefault();
+			//e.originalEvent.preventDefault();
 
 			//already processed this key event
 			if(this.lastMove+100 < e.timeStamp || !this._active) return;

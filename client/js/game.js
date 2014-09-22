@@ -10,6 +10,7 @@ var Game = {
 	
 	sightRadius: 8,
 	useFoV: true,
+	useFoVOverride: null, // null, false, true
 	fogOfWar: true,
 	viewMode: 'isometric',	// isometric - orthogonal
 
@@ -94,6 +95,7 @@ var Mouse = {
 				Crafty('game_cursor').visible = true;
 				//Game.cursor = Crafty.e("2D, DOM, game_cursor");
 				Game._useFoVbak = Game.useFoV;
+				Game.useFoVOverride = null;
 				Game.useFoV = false;
 				drawMap();
 				break;

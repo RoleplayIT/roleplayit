@@ -51,7 +51,7 @@
 						"image": "images/iso-objects.png",
 						"tileSize":  [48,72],
 						"cols": 6,
-						"rows": 2
+						"rows": 5
 					},
 				"orthogonal": {
 						"image": "images/2d-objects.png",
@@ -78,7 +78,26 @@
 					"cols": 16,
 					"rows": 9
 				},
-				"flags": [0,0,0,0,0,0,0,0,0,0,1,0,0,0,0]
+				"flags": [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+			}
+		]
+	},
+	{
+		"id": "dungeon",
+		"name": "Dungeon map",
+		"viewMode": "orthogonal",
+		"orthogonal": { "baseSize": 24 },
+		"groups": [
+			{
+				"firstgid": 1,
+				"name": "Dungeon",
+				"orthogonal": {
+					"image": "images/dungeonmap-set.png",
+					"tileSize": 24,
+					"cols": 9,
+					"rows": 9
+				},
+				"flags": [0,0,0,0,0,0,0,0,0,0,0,3,0,0,0]
 			}
 		]
 	}

@@ -16,6 +16,18 @@
 		"tileSize": [32,48],
 		"cellSize": 1,
 		"type": 1
+	},
+	"dude": {
+		"image": "images/char_jim.png",
+		"tileSize": [32,40],
+		"cellSize": 1,
+		"type": 1
+	},
+	"skeleton": {
+		"image": "images/char_skeleton.png",
+		"tileSize": [32,40],
+		"cellSize": 1,
+		"type": 1
 	}
 	
 }

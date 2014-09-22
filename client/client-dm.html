@@ -68,6 +68,8 @@
 	<a id="IcoModeTile" href="javascript:GUI.toolbar.modeTile()" class="btn-icon tiles"></a>
 	<a id="IcoModeScenery" href="javascript:GUI.toolbar.modeScenery()" class="btn-icon objects"></a>
 	<a id="IcoModeActor" href="javascript:GUI.toolbar.modeActor()" class="btn-icon actors"></a>
+	&nbsp;&nbsp;
+	<a href="logout" class="btn-icon logout"></a>
 
 	<div id="pane_viewport" >
 		<div id="cr-stage"></div>
@@ -119,7 +121,12 @@
 		<div class="content">
 		</div>
 	</div>
-<a href="logout" class="btn-icon logout"></a>
+
+	<div id="turn_order" style="width: 250px; height: 200px;">
+		<div class="header">TURN ORDER</div>
+		<div class="content">
+		</div>
+	</div>
 
 <!--div id="console" style="height: 300px;overflow-y:auto">
 </div-->
@@ -222,6 +229,13 @@ io.on('disconnect', function(data){
 
 io.on('playerlist', GUI.playerList.update);
 
+io.on('turn:list', GUI.turnOrder.update);
+io.on('turn:current', function(data){
+	console.log(data);
+	$('#turn_order li .isturn').removeClass('yes');
+	$('#turn_order li[data-user=' + data + '] .isturn').addClass('yes');
+});
+
 io.on('client:isTyping', function(data){
 	window._timeouts = window._timeouts || {};
 	$('#player_list li[data-user=' + data + '] .istyping').addClass('yes');
@@ -231,10 +245,12 @@ io.on('client:isTyping', function(data){
 	}, 5000);
 });
 
+
+
 function AJAXsend(txt) {
 	document.getElementById('input_chat').value='';
 	if (txt=='') return;
-	if (txt[0]=='['){
+	if (txt[0]=='/'){
 		// Command!
 		//var args = /(\w+)(?:\s+(\w+)(?:\s+(.+))?)?/.exec(txt);
 		var args = txt.substr(1).split(/\s+/);
@@ -248,6 +264,10 @@ function AJAXsend(txt) {
 
 			case 'roll':
 				io.emit('dice:roll', { dice: args[0] });
+				break;
+
+			case 'cm':
+				io.emit('map:set', { id: args[0]|0 });
 				break;
 		}
 

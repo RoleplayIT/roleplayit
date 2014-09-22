@@ -236,7 +236,7 @@ io.on('client:isTyping', function(data){
 function AJAXsend(txt) {
 	document.getElementById('input_chat').value='';
 	if (txt=='') return;
-	if (txt[0]=='['){
+	if (txt[0]=='/'){
 		// Command!
 		//var args = /(\w+)(?:\s+(\w+)(?:\s+(.+))?)?/.exec(txt);
 		var args = txt.substr(1).split(/\s+/);
@@ -250,6 +250,10 @@ function AJAXsend(txt) {
 
 			case 'roll':
 				io.emit('dice:roll', { dice: args[0] });
+				break;
+
+			case 'cm':
+				io.emit('map:set', { id: args[0]|0 });
 				break;
 		}
 

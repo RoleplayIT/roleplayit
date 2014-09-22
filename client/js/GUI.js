@@ -205,5 +205,24 @@ var GUI = {
 			container.html(content);
 		}
 
+	},
+	turnOrder:
+	{
+		show: function() {
+			$("#turn_order").show();
+		},
+		close: function() {
+			$("#turn_order").hide();	
+		},
+		update: function(data) {
+			var container = $("#turn_order .content");
+			var content  = "<ul>";
+			_.each(data, function(entry) {
+				content += '<li data-user="' + entry.actor + '"><span class="isturn"></span>' + entry.name + '</li>';
+			});
+			content += '<ul>';
+			container.html(content);
+		}
+
 	}
 }

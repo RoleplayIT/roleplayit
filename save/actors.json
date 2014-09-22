@@ -2,34 +2,56 @@
 	{
 		"id": 1,
 		"name": "Mage",
-		"body": 1,
 		"owner": "p1",
-		"map": 1,
+		"map": 2,
 		"x": 4,
 		"y": 10,
 		"angle": 4,
-		"body": "mage"
+		"body": "mage",
+		"props": "HP 10/10\nMP 5/5\netc\netc2"
 	},
 	{
 		"id": 2,
 		"name": "Caius",
-		"body": 2,
 		"owner": "p2",
 		"map": 2,
 		"x": 7,
 		"y": 8,
 		"angle": 0,
-		"body": "dwarf"
+		"body": "dwarf",
+		"props": "HP 20/20"
 	},
 	{
 		"id": 3,
 		"name": "Jumbo",
-		"body": 3,
 		"owner": "p3",
+		"map": 2,
+		"x": 8,
+		"y": 7,
+		"angle": 0,
+		"body": "mage2",
+		"props": "HP 10/10"
+	},
+	{
+		"id": 4,
+		"name": "Jim",
+		"owner": 0,
+		"map": 2,
+		"x": 7,
+		"y": 7,
+		"angle": 0,
+		"body": "dude",
+		"props": "HP 10/10"
+	},
+	{
+		"id": 5,
+		"name": "Skeleton",
+		"owner": 0,
 		"map": 2,
 		"x": 8,
 		"y": 8,
 		"angle": 0,
-		"body": "mage2"
+		"body": "skeleton",
+		"props": "HP 10/10"
 	}
 ]

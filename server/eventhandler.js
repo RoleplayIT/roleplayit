@@ -7,6 +7,7 @@ var crypto     = require('crypto'),
 	Bodysets   = require('./bodysets'),
 	Users	   = require('./users'),
 	PlayerList = require('./playerlist'),
+	TurnHandler= require('./turnhandler'),
 	Server	   = global.Server;
 
 var AccessLevel = Users.AccessLevel;
@@ -141,9 +142,11 @@ module.exports = (function(io) {
 		var username = req.session.username;
 		var actor = Actors.getByOwner(req.session.username); 
 		var text = req.data.text;
+		var mode = req.data.mode;
 		var data = {
 			id: (actor ? actor.id : -1),
 			name: (actor ? actor.name : username),
+			mode: mode || 'talk', // TODO whisper, action
 			text: text
 		};
 		console.log(data);
@@ -185,6 +188,14 @@ module.exports = (function(io) {
 	});
 	
 	io.route('map', {
+		list: function(req) {
+			if (!checkAccessLevel(req, AccessLevel.Administrator)) return;
+			var mapList = [];
+			_.each(Maps.getMaps(), function(map) {
+				mapList.push( _.pick(map, 'id', 'name', 'width', 'height', 'tileset', 'viewMode') );
+			});
+			req.io.emit('map:list', mapList);
+		},
 		get: function(req) {
 			var actor,map;
 			// TODO check current map for admins
@@ -226,7 +237,28 @@ module.exports = (function(io) {
 
 			}
 		}
-	})
+	});
+
+	io.route('turn', {
+		add: function(req) {
+			TurnHandler.add(req.data);
+		},
+		remove: function(req) {
+			TurnHandler.remove(req.data);
+		},
+		setOrder: function(req) {
+			TurnHandler.setOrder(req.data);
+		},
+		setSkip: function(req) {
+			TurnHandler.setSkip(req.data|0);
+		},
+		next: function(req) {
+			TurnHandler.next();
+		},
+		get: function(req) {
+			TurnHandler.get();
+		}
+	});
 
 
 })
