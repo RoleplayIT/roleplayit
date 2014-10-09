@@ -1,4 +1,5 @@
-
+//PERCEVAL : I put some commentaries about your personal (life)choices in the code, they start with "PER"
+//ctrl+f it for simple acess
 var Game = {
 	viewport: null,
 	map:      null,
@@ -16,8 +17,7 @@ var Game = {
 
 	setViewMode: function(mode){
 		//if (mode==this.viewMode) return;
-		if (mode=='isometric') this.viewMode = mode;
-		else if (mode=='orthogonal') this.viewMode = mode;
+		if (mode) this.viewMode = mode;
 
 		// TODO
 		// check if the tileset allows for it
@@ -94,10 +94,10 @@ var Mouse = {
 				this.mode = 'tile';
 				Crafty('game_cursor').visible = true;
 				//Game.cursor = Crafty.e("2D, DOM, game_cursor");
-				Game._useFoVbak = Game.useFoV;
+				Game._useFoVbak = Game.useFoV; //PER : any logic behind that one underscore?
 				Game.useFoVOverride = null;
 				Game.useFoV = false;
-				drawMap();
+				drawMap(); //PER : why do we draw the map in the mouse call?
 				break;
 			case 'actor':
 				this.mode = 'actor';
@@ -116,7 +116,7 @@ var TileFlag;
 var Bodysets;
 
 // Draw map ///////////////////////////////////////////////////////////////
-function drawMap() {
+function drawMap() { // PER : isn't that more of a "createMap"?
 	var map = Game.map;
 	if (!map) return;
 
@@ -210,8 +210,8 @@ function updateFoV() {
 }
 
 function loadTileset(tileset, mode) {
-	if (typeof tileset == 'string') tileset = _.findWhere(Tilesets, {id: map.tileset});
-	if (!tileset) console.error('Invalid tileset');
+	if (typeof tileset == 'string') tileset = _.findWhere(Tilesets, {id: map.tileset}); // PER : is that typeof check REALLY necessary?
+	if (!tileset) console.error('Invalid tileset'); // PER : no return/break?
 
 	var i = 0;
 	var groups = tileset.groups;
@@ -503,5 +503,6 @@ $(document).ready(function() {
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
+// PER : well for most of the last part you used libraries so I can't really help you, I didn't see any blatant errors though
 });
 
