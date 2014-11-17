@@ -3,6 +3,51 @@
  */
 var GUI = {
 	_nameColors: ['#76bdaa', '#5f96bb', '#edb44e', '#ed856c', '#c7adce'],
+
+	///////////////////////////////////////////////////////////////
+	init: function() {
+		function _savePosition() {
+			var pos = {
+				left: $(this).css('left'),
+				top: $(this).css('top'),
+				width: $(this).css('width'),
+				height: $(this).css('height')
+			};
+			$.cookie( $(this).attr('id'), JSON.stringify(pos) );
+
+			$(this).parent().append($(this)); // brings it to front
+		}
+
+		$("#chat").mCustomScrollbar();
+		
+		$("#tilesPane").draggable();
+
+		$("#stats,#inventory,#turn_order,#player_list,#chat_container")
+			.draggable({ 
+				handle: '.header',
+				stop: _savePosition
+			})
+			.resizable({
+				stop: _savePosition
+			})
+			.each(function(){
+				// restore previous sizes and positions
+				try {
+					var position = JSON.parse( $.cookie($(this).attr('id')) );
+					if (position) {
+						$(this).css('left', position.left);
+						$(this).css('top', position.top);
+						$(this).css('width', position.width);
+						$(this).css('height', position.height);
+					}
+				} catch(e) {}
+			});
+			
+		// chat input
+		InputHistory('#input_chat', AJAXsend);
+		$('#input_chat').keypress(function(){ io.emit('client:isTyping'); });
+	},
+	
 	///////////////////////////////////////////////////////////////
 	chat: 
 	{
@@ -13,8 +58,6 @@ var GUI = {
 		write: function(id, name, text)
 		{
 			var c=$("#chat").find(".mCSB_container");
-			//.after('<p>CIAO</p>');
-			//alert($("#chat").html());
 			var html_text = $('<div/>').text(text).html();
 
 			if (id > 0) {
@@ -138,30 +181,30 @@ var GUI = {
 		modeActor: function() {
 			$('#IcoModeTile,#IcoModeScenery').removeClass('selected');
 			$('#IcoModeActor').addClass('selected');
-			Mouse.setMode('actor');
+			Game.setInteractionMode('actor');
 			GUI.tilesPane.close();
 		},
 		modeTile: function() {
 			$('#IcoModeActor,#IcoModeScenery').removeClass('selected');
 			$('#IcoModeTile').addClass('selected');
-			Mouse.setMode('tile');
 			Mouse.layer = 0;
+			Game.setInteractionMode('tile');
 			GUI.tilesPane.show();
 		},
 		modeScenery: function() {
 			$('#IcoModeActor,#IcoModeTile').removeClass('selected');
 			$('#IcoModeScenery').addClass('selected');
-			Mouse.setMode('tile');
 			Mouse.layer = 1;
+			Game.setInteractionMode('tile');
 			GUI.tilesPane.show();
 		},
 		toggleViewMode: function() {
 			var tileset = _.findWhere(Tilesets, {id: Game.map.tileset});
 
 			if ( Game.viewMode == 'orthogonal' && tileset.isometric ) {
-				Game.setViewMode('isometric');
+				Viewport.setMode('isometric');
 			} else if ( Game.viewMode == 'isometric' && tileset.orthogonal ) {
-				Game.setViewMode('orthogonal');
+				Viewport.setMode('orthogonal');
 			}
 
 			GUI.tilesPane.close();
@@ -187,6 +230,8 @@ var GUI = {
 			this.close();
 		}
 	},
+
+	///////////////////////////////////////////////////////////////
 	playerList:
 	{
 		show: function() {
@@ -206,6 +251,8 @@ var GUI = {
 		}
 
 	},
+	
+	///////////////////////////////////////////////////////////////
 	turnOrder:
 	{
 		show: function() {

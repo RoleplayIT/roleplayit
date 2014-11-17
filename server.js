@@ -3,7 +3,7 @@ var express  = require('express.io'),
 	fs       = require('fs'),
 	os       = require('os'),
 	crypto   = require('crypto'),
-	_        = require('underscore'),
+	_        = require('lodash'),
 	Actors	 = require('./server/actor'),
 	Dice	 = require('./server/dice'),
 	Users	 = require('./server/users'),
@@ -95,20 +95,20 @@ initialize();
 // HTTP server
 app.get('/', function(req, res, next){   
 	if(req.session.username) {
-		//res.send('welcome ' + req.session.username + ' Click to <a href="/forget">forget</a>!.');
-		//res.sendfile(__dirname + '/client.html');
-		if (req.session.accessLevel == 1)
-			res.sendfile(__dirname + '/client/client-dm.html');
-		else
-			res.sendfile(__dirname + '/client/client-player.html');
+		res.sendfile(__dirname + '/client/client.html');
+		//if (req.session.accessLevel == 1)
+		//	res.sendfile(__dirname + '/client/client-dm.html');
+		//else
+		//	res.sendfile(__dirname + '/client/client-player.html');
 
-		// TODO check accesslevel to show proper page
 	} else {
+		res.sendfile(__dirname + '/client/login.html');
+		/*
 		res.send('<form method="post">'
 		+ '<p>Username : <label><input type="text" name="username"/></label>'
 		+ '<p>Password : <label><input type="password" name="password"/></label>'
-		//+ '<p><label><input type="checkbox" name="remember"/> remember me</label></p> '
 		+ '<p><input type="submit" value="Submit"/></p></form>');
+		*/
 	}
 });
 
@@ -125,15 +125,16 @@ app.post('/', function(req, res){
 	}
 	else {
 		console.log('Login: '+ req.ip +": Access denied for '" + username + "'");
+		res.redirect('/?msg=err');
+		return;
 	}
 
-	res.redirect('back');
-
+	res.redirect('/');
 });
 
 app.get('/logout', function(req, res, next){
 	req.session.destroy();
-	res.redirect('back');
+	res.redirect('/');
 
 });
 
@@ -143,7 +144,7 @@ app.get('/style.css', function(req, res, next){
 app.use('/public', express.static(__dirname + "/public"));
 app.use('/js',     express.static(__dirname + "/client/js"));
 app.use('/gfx',    express.static(__dirname + "/client/gfx", { maxAge: 3600 }));
-app.use('/images', express.static(__dirname + "/client/images", { maxAge: 3600 }));
+app.use('/img', express.static(__dirname + "/client/img", { maxAge: 3600 }));
 app.use('/css',    express.static(__dirname + "/client/css"));
 app.listen(config.port);
 

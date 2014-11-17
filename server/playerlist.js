@@ -1,6 +1,6 @@
 var Actor = require('./actor'),
 	Users = require('./users'),
-	_     = require('underscore'),
+	_     = require('lodash'),
 	io    = global.Server.io;
 
 (function() {

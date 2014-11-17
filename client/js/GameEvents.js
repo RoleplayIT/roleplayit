@@ -27,7 +27,7 @@ var GameEvents = {
 			}
 			Game.viewport.place(entity, x, y, 2);
 			
-			if (Game.useFoV) updateFoV();
+			if (Game.useFoV) Viewport.updateFoV();
 			
 		}
 		catch (e){}

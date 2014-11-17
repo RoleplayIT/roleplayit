@@ -1,5 +1,5 @@
 var crypto     = require('crypto'),
-	_          = require('underscore'),
+	_          = require('lodash'),
 	Actors	   = require('./actor'),
 	Dice       = require('./dice'),
 	Maps       = require('./map'),
@@ -126,15 +126,22 @@ module.exports = (function(io) {
 		//console.log(req.session.accessLevel);
 		console.log('sync');
 		var actor = Actors.getByOwner(req.session.username);
+		
+		// get current map for admins so we know where to retrieve actors
+		if (checkAccessLevel(req, AccessLevel.Administrator)) {
+			var selectedMap = store.users[req.session.username].selectedMap;
+			if ( !Maps.getById(selectedMap) ) selectedMap = Maps.getMaps()[0].id;
+		}
 
 		req.io.emit('sync', {
 			userID: req.session.username,
+			accessLevel: req.session.accessLevel,
 			currentActor: actor?actor.id : 0,
 			tilesets: Tilesets.getTilesets(),
 			tileFlag: Tilesets.TileFlag,
 			tileFlags: Tilesets.Tileset,
 			bodysets: Bodysets.getBodysets(),
-			actors: _.where(Actors.getActors(), {map: (actor ? actor.map : 4) }) // TODO check current map for admins
+			actors: _.where(Actors.getActors(), {map: (actor ? actor.map : selectedMap) })
 		});
 	})
 
@@ -200,7 +207,9 @@ module.exports = (function(io) {
 			var actor,map;
 			// TODO check current map for admins
 			if (checkAccessLevel(req, AccessLevel.Administrator)) {
-				map = Maps.getMaps()[0];
+				var selectedMap = store.users[req.session.username].selectedMap;
+				if (selectedMap) map = Maps.getById(selectedMap); // try to get map from session
+				if (!map) map = Maps.getMaps()[0]; // couldn't find it, get the first available
 			} else {
 				actor = Actors.getByOwner(req.session.username);
 				map = Maps.getById(actor.map);
@@ -216,21 +225,19 @@ module.exports = (function(io) {
 				// TODO admins should be able to change at will 
 				var map = Maps.getById(req.data.id);
 				if (map) {
-					req.session.selectedMap = req.data.id;
+					store.users[req.session.username].selectedMap = req.data.id;
 					req.io.emit('map:load', map);
 				}
 			} 
 		},
 		draw: function(req) {
 			//console.log('map:draw');
+			//if (!checkAccessLevel(req, AccessLevel.Administrator)) return;
 			var map = Maps.getById(req.data.map);
 			if (map && req.data) {
 				var tile = req.data;
 				if (tile.tileId==null || tile.layer ==null || tile.x==null || tile.y==null) return console.log('Error: map:draw missing data!');
-				//if (checkAccessLevel(req, AccessLevel.Administrator)) {
 					Maps.draw(map, tile.tileId, tile.layer, tile.x, tile.y);
-
-				//}
 
 				// TODO broadcast only to those in the current map
 				io.broadcast('map:update', map);

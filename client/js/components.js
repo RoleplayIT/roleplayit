@@ -11,7 +11,7 @@ Crafty.c("Actor", {
 });
 
 function _actor_onDragging(e) {
-	if (Mouse.mode!='actor') return true;
+	if (Game.interactionMode!='actor') return true;
 	e.preventDefault();
 	var gc = Game.viewport.px2pos(  Crafty.mousePos.x,  Crafty.mousePos.y );
 	Game.viewport.place(this, gc.x, gc.y, 2);
@@ -51,9 +51,9 @@ Crafty.c("Isoway", {
 
 		}).bind("KeyDown", function(e) {
 			if (!Crafty.selected) return;
-			if (Mouse.mode!='actor') return;
+			if (Game.interactionMode!='actor') return;
 
-			//e.originalEvent.preventDefault();
+			e.originalEvent.preventDefault();
 
 			//already processed this key event
 			if(this.lastMove+100 < e.timeStamp || !this._active) return;

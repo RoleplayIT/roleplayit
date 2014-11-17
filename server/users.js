@@ -1,5 +1,5 @@
 var fs      = require('fs'),
-	_       = require('underscore'),
+	_       = require('lodash'),
 	crypto  = require('crypto');
 
 (function() {

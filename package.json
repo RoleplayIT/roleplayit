@@ -1,6 +1,6 @@
 {
   "name": "RoleplayIT",
-  "version": "0.0.2",
+  "version": "0.0.5",
   "description": "Isometric virtual tabletop interface",
   "author": {
     "name": "Alan v. Drake",
@@ -12,6 +12,6 @@
   },
   "dependencies": {
     "express.io": "1.1.11",
-	"underscore": "1.4.4"
+    "lodash": "2.4.1"
   }
 }

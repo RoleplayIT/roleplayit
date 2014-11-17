@@ -14,13 +14,13 @@
 				"firstgid": 1,
 				"name": "floors",
 				"isometric": {
-						"image": "images/iso-floors.png",
+						"image": "gfx/tiles/iso-floors.png",
 						"tileSize": 48,
 						"cols": 5,
 						"rows": 3
 					},
 				"orthogonal": {
-						"image": "images/2d-floors.png",
+						"image": "gfx/tiles/2d-floors.png",
 						"tileSize": 24,
 						"cols": 5,
 						"rows": 3
@@ -31,13 +31,13 @@
 				"firstgid": 16,
 				"name": "walls",
 				"isometric": {
-						"image": "images/iso-walls.png",
+						"image": "gfx/tiles/iso-walls.png",
 						"tileSize":  48,
 						"cols": 4,
 						"rows": 1
 					},
 				"orthogonal": {
-						"image": "images/2d-walls.png",
+						"image": "gfx/tiles/2d-walls.png",
 						"tileSize": 24,
 						"cols": 4,
 						"rows": 1
@@ -48,13 +48,13 @@
 				"firstgid": 64,
 				"name": "scenery",
 				"isometric": {
-						"image": "images/iso-objects.png",
+						"image": "gfx/tiles/iso-objects.png",
 						"tileSize":  [48,72],
 						"cols": 6,
 						"rows": 5
 					},
 				"orthogonal": {
-						"image": "images/2d-objects.png",
+						"image": "gfx/tiles/2d-objects.png",
 						"tileSize": 24,
 						"cols": 6,
 						"rows": 2
@@ -73,7 +73,7 @@
 				"firstgid": 1,
 				"name": "Dungeon",
 				"orthogonal": {
-					"image": "images/topdown.png",
+					"image": "gfx/tiles/topdown.png",
 					"tileSize": 24,
 					"cols": 16,
 					"rows": 9
@@ -87,13 +87,20 @@
 		"name": "Dungeon map",
 		"viewMode": "orthogonal",
 		"orthogonal": { "baseSize": 24 },
+		"isometric": { "baseSize": 48 },
 		"groups": [
 			{
 				"firstgid": 1,
 				"name": "Dungeon",
 				"orthogonal": {
-					"image": "images/dungeonmap-set.png",
+					"image": "gfx/tiles/dungeonmap-set.png",
 					"tileSize": 24,
+					"cols": 9,
+					"rows": 9
+				},
+				"isometric": {
+					"image": "gfx/tiles/dungeonmap-iso-set.png",
+					"tileSize": 48,
 					"cols": 9,
 					"rows": 9
 				},

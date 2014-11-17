@@ -4,37 +4,23 @@
 <meta charset="utf-8">
 <link rel="stylesheet" href="/style.css" type="text/css">
 <!-- jQuery -->
-<script src="js/jquery.min.js"></script>
-<link rel="stylesheet" href="js/jquery-ui.css" />
-<link rel="stylesheet" href="js/jquery.ui.theme.css" />
-<script src="js/jquery-ui.min.js"></script>
+<script src="js/lib/jquery.min.js"></script>
+<script src="js/lib/jquery.cookie.js"></script>
+<link rel="stylesheet" href="js/lib/jquery-ui.css" />
+<link rel="stylesheet" href="js/lib/jquery.ui.theme.css" />
+<script src="js/lib/jquery-ui.min.js"></script>
 <script src="js/InputHistory.js"></script>
 
 <!-- jQuery scrollbar -->
-<link type="text/css" rel="stylesheet" href="js/jquery.mCustomScrollbar.css">
-<script src="js/jquery.mousewheel.min.js"></script>
-<script src="js/jquery.mCustomScrollbar.min.js"></script>
-<script>
-	(function($){
-		$(document).ready(function(){
-			$("#chat").mCustomScrollbar();
-			
-			$("#stats,#inventory,#turn_order,#player_list,#tilesPane").draggable({ handle: '.header' });
-			
-			// chat input
-			InputHistory('#input_chat', AJAXsend);
-			$('#input_chat').keypress(function(){ io.emit('client:isTyping'); })
-		});
-			
-	})(jQuery);
-</script>
+<link type="text/css" rel="stylesheet" href="js/lib/jquery.mCustomScrollbar.css">
+<script src="js/lib/jquery.mousewheel.min.js"></script>
+<script src="js/lib/jquery.mCustomScrollbar.min.js"></script>
 
 <!-- underscore -->
-<script type="text/javascript" src="js/underscore-min.js"></script>
-
+<script type="text/javascript" src="js/lib/lodash.min.js"></script>
 
 <!-- Crafty JS -->
-<script type="text/javascript" src="js/crafty.js"></script>
+<script type="text/javascript" src="js/lib/crafty.js"></script>
 <script type="text/javascript" src="js/components.js"></script>
 <script type="text/javascript" src="js/game.js"></script>
 <script type="text/javascript" src="js/orthogonal.js"></script>
@@ -49,6 +35,8 @@
 <script src="js/Shadowcast.js"></script>
 <script src="js/Sender.js"></script>
 <script src="js/GUI.js"></script>
+<script src="js/Eventhandler.js"></script>
+<script src="js/Viewport.js"></script>
 
 </head>
 
@@ -84,20 +72,26 @@
 		</div>
 	</div>
 
-	<div id="chat_container">
-		<div class="buttons" style="float:right; padding-left:5px;">
-			<a href="#" class="btn-icon speak selected"></a><br />
-			<a href="#" class="btn-icon whisper"></a>
-		</div>
-		<div id="chat">
-			<!--<p><span style="color: red;"> Gregor rolls Perception 14 + 11 = <b>25</b></span></p>-->
-		</div>
-		<div class="input-pane">
-			<input type="text" name="input_chat" id="input_chat" />
-		</div>
-	</div>
 </div> <!-- /column -->
 
+	<div id="chat_container">
+		<div class="top">
+			<div class="header">CHAT</div>
+			<div class="buttons" style="float:right; padding-left:5px;">
+				<a href="#" class="btn-icon speak selected"></a><br />
+				<a href="#" class="btn-icon whisper"></a>
+			</div>
+			<div id="chat">
+				<!--<p><span style="color: red;"> Gregor rolls Perception 14 + 11 = <b>25</b></span></p>-->
+			</div>
+		</div>
+		<div class="bottom">
+			<div class="input-pane">
+				<input type="text" name="input_chat" id="input_chat" />
+			</div>
+		</div>
+	</div>
+	
 	<div id="stats" style="width: 250px; height: 200px;">
 		<div class="header">STATS</div>
 		<div class="content" >
@@ -122,17 +116,18 @@
 		</div>
 	</div>
 
+	<div id="turn_order" style="width: 250px; height: 200px;">
+		<div class="header">TURN ORDER</div>
+		<div class="content">
+		</div>
+	</div>
 
 <!--div id="console" style="height: 300px;overflow-y:auto">
 </div-->
 
+<div id="modal-message" class="modal" ><div class="message">Connecting...</div></div>
 
 <script>
-io = io.connect();
-
-
-io.emit('sync');
-
 
 ///////////////////////////////////////////
 /*/
@@ -191,47 +186,7 @@ function clamp(min,max, value) {
 	return (value < min) ? min : (value > max ? max : value);
 }
 
-// bindings
-io.on('actor:move', function(data){
-	GameEvents.move(data.id, data.x, data.y, data.angle);
-});
-io.on('actor:props', function(data){
-	if (typeof data == "string") {
-		$('#stats .content').html( data.replace(/\n/g,'<br>') );
-	}
-	// TODO json data case
-	// TODO output templates
-});
 
-io.on('say', function(data){
-	GameEvents.say(data.id, data.name, data.text);
-});
-
-io.on('disconnect', function(data){
-	// TODO handle disconnections properly
-	console.log(data);
-	if (data=='unauthorized') {
-		// server forced a disconnection, go back to login
-		document.location.reload(true);
-		io.disconnect();
-	}
-	if (data=='relogged') {
-		alert('Your username has relogged from somewhere else');
-		io.disconnect();
-	}
-
-});
-
-io.on('playerlist', GUI.playerList.update);
-
-io.on('client:isTyping', function(data){
-	window._timeouts = window._timeouts || {};
-	$('#player_list li[data-user=' + data + '] .istyping').addClass('yes');
-	clearTimeout(_timeouts[data]);
-	window._timeouts[data] = setTimeout(function() {
-		$('#player_list li[data-user=' + data + '] .istyping').removeClass('yes');
-	}, 5000);
-});
 
 function AJAXsend(txt) {
 	document.getElementById('input_chat').value='';

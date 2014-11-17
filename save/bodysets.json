@@ -1,30 +1,30 @@
 {
 	"mage": {
-		"image": "images/char_mage.png",
+		"image": "gfx/characters/char_mage.png",
 		"tileSize": [24,48],
 		"cellSize": 1,
 		"type": 1
 	},
 	"mage2": {
-		"image": "images/char_mage2.png",
+		"image": "gfx/characters/char_mage2.png",
 		"tileSize": [24,48],
 		"cellSize": 1,
 		"type": 1
 	},
 	"dwarf": {
-		"image": "images/char_dwarf.png",
+		"image": "gfx/characters/char_dwarf.png",
 		"tileSize": [32,48],
 		"cellSize": 1,
 		"type": 1
 	},
 	"dude": {
-		"image": "images/char_jim.png",
+		"image": "gfx/characters/char_jim.png",
 		"tileSize": [32,40],
 		"cellSize": 1,
 		"type": 1
 	},
 	"skeleton": {
-		"image": "images/char_skeleton.png",
+		"image": "gfx/characters/char_skeleton.png",
 		"tileSize": [32,40],
 		"cellSize": 1,
 		"type": 1

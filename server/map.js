@@ -1,5 +1,5 @@
 var fs = require('fs'),
-	_  = require('underscore');
+	_  = require('lodash');
 
 (function() {
 	var _maps = [];
@@ -59,7 +59,7 @@ var fs = require('fs'),
 			viewMode: "isometric",
 			tilemap: null 
 		};
-		var map = _.defaults(defaults, args);
+		var map = _.defaults(args, defaults);
 		_maps[_maps.length] = map;
 
 		if (map.tilemap == null) Maps.resetMap(map);
@@ -133,6 +133,6 @@ var fs = require('fs'),
 		}
 	}
 
-	module.exports = Maps;
+	global.Maps = module.exports = Maps;
 
 }).call(this);
